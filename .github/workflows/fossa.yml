@@ -1,0 +1,32 @@
+name: Check Fossa
+
+on: [ pull_request ]
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false
+
+jobs:
+  fossa-scan:
+    name: 👮‍ License checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v3
+
+      - name: Set up JDK temurin:17
+        uses: actions/setup-java@v3.4.0
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🏃 Run FOSSA scan
+        uses: fossas/fossa-action@main
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+
+      - name: 🏃 Run FOSSA test
+        uses: fossas/fossa-action@main
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+          run-tests: true

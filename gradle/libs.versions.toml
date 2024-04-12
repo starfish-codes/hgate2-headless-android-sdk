@@ -1,0 +1,87 @@
+[versions]
+activityCompose = "1.8.2"
+agp = "8.3.1"
+appcompat = "1.6.1"
+arrow = "1.2.4"
+composeCommonVersion = "1.6.4"
+coreKtx = "1.12.0"
+itu = "1.7.3"
+jackson = "2.16.0"
+junit = "4.13.2"
+kotlin = "1.9.20"
+ktor = "2.3.9"
+lifecycleRuntimeKtx = "2.7.0"
+material3 = "1.2.1"
+
+slf4j-android = "1.7.36"
+
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+
+androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "composeCommonVersion" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "composeCommonVersion" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "composeCommonVersion" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "composeCommonVersion"}
+
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+
+slf4j-android = { module = "org.slf4j:slf4j-android", version.ref = "slf4j-android" }
+ktor-client-serialization-jackson = { module = "io.ktor:ktor-serialization-jackson", version.ref = "ktor" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+itu = { module = "com.ethlo.time:itu", version.ref = "itu" }
+
+# Testing
+androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.1.5" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.5.1" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "composeCommonVersion" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "composeCommonVersion" }
+
+assertj-core = { module = "org.assertj:assertj-core", version = "3.25.3" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.8.0" }
+mockk = { module = "io.mockk:mockk", version = "1.13.9" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version = "2.0.9" }
+robolectric = { module = "org.robolectric:robolectric", version = "4.11.1" }
+ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+wiremock = { module = "com.marcinziolo:kotlin-wiremock", version = "2.1.1" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+apiChecker = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.14.0" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.4" }
+jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlinter = { id = "org.jmailen.kotlinter", version = "4.3.0" }
+kover = { id = "org.jetbrains.kotlinx.kover", version = "0.7.4" }
+testLogger = { id = "com.adarshr.test-logger", version = "4.0.0" }
+
+[bundles]
+ktor-client = [
+    "ktor-client-core",
+    "ktor-client-okhttp",
+    "ktor-client-content-negotiation",
+    "slf4j-android",
+    "ktor-client-serialization-jackson",
+    "jackson-module-kotlin",
+    "jackson-datatype-jsr310",
+    "itu"
+]
+
+arrow = [
+    "arrow-core",
+    "arrow-fx-coroutines"
+]

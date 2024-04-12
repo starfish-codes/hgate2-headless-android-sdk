@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Hellgate Android SDK</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="blank_and_required">Field cannot be blank</string>
+    <string name="invalid_field">The field content is invalid</string>
+    <string name="incomplete_expiry_date">The field is not completely filled in</string>
+</resources>

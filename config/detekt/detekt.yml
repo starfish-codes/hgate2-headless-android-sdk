@@ -1,0 +1,29 @@
+style:
+  MaxLineLength:
+    maxLineLength: 140
+    excludes:
+      - "**/test**/**"
+      - "**/androidTest**/**"
+  ReturnCount:
+    max: 3
+    excludeGuardClauses: true
+  WildcardImport:
+    active: false
+naming:
+  FunctionNaming:
+    active: true
+    excludes:
+      - "**/test**/**"
+      - "**/androidTest**/**"
+    ignoreAnnotated: ["Composable"]
+  MatchingDeclarationName:
+    active: false
+coroutines:
+  RedundantSuspendModifier:
+    active: false
+complexity:
+  LongParameterList:
+    ignoreDefaultParameters: true
+    ignoreAnnotated: ["Composable"]
+  TooManyFunctions:
+    ignorePrivate: true
