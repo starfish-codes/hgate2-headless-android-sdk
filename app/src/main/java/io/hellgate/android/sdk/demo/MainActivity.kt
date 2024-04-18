@@ -17,8 +17,6 @@ import io.hellgate.android.sdk.demo.ui.theme.HellgateAndroidSDKTheme
 import io.hellgate.android.sdk.element.*
 import kotlinx.coroutines.delay
 
-const val HELLGATE_BASE_URL = "https://latest.hellgate.dev"
-
 class MainActivity : ComponentActivity() {
 
     private val viewmodel by viewModels<MainActivityViewModel>()

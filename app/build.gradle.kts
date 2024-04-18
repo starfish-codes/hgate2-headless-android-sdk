@@ -21,6 +21,8 @@ android {
 
         val hgBackendApiKey: String = project.properties["hg.backend.apikey"].toString()
         buildConfigField("String", "HG_BACKEND_API_KEY", "\"$hgBackendApiKey\"")
+        val hgBackendApiUrl: String = project.properties["hg.backend.url"].toString()
+        buildConfigField("String", "HG_BACKEND_API_URL", "\"$hgBackendApiUrl\"")
     }
 
     buildTypes {

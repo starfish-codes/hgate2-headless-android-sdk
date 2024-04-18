@@ -13,7 +13,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal object Constants {
-    const val HG_STAGING_URL = "https://staging.hellgate.dev"
+    const val HG_STAGING_URL = "https://sandbox.hellgate.io"
 }
 
 interface Hellgate {

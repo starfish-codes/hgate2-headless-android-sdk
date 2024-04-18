@@ -35,7 +35,7 @@ class MainActivityViewModel : ViewModel() {
         viewModelScope.launch {
             val sessionId: String = hgBackendClient().createSession().getOrNull()?.sessionId.orEmpty()
             sessionState = SessionState.UNKNOWN
-            hellgate = initHellgate(HELLGATE_BASE_URL, sessionId)
+            hellgate = initHellgate(BuildConfig.HG_BACKEND_API_URL, sessionId)
         }
     }
 
