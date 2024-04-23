@@ -67,6 +67,11 @@ class MainActivityViewModel : ViewModel() {
         }
     }
 
+    fun reset(){
+        sessionState = null
+        textValue = "Submit"
+    }
+
     companion object {
         private const val TAG = "MainActivityViewModel"
     }

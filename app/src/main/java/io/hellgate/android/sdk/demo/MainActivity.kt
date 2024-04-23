@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize(), color = Color(0xffe9f2f4)) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(20.dp),
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize().padding(12.dp)
                     ) {
 
                         when (viewmodel.sessionState) {
@@ -48,6 +48,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             SessionState.REQUIRE_TOKENIZATION -> {
+                                Text("Session status: ${viewmodel.sessionState}")
                                 CardForm()
                                 StatePrintout()
                                 SubmitButton()
@@ -68,6 +69,7 @@ class MainActivity : ComponentActivity() {
                             SessionState.COMPLETED -> {
                                 Text("Session status: ${viewmodel.sessionState}")
                                 Text(viewmodel.textValue)
+                                ResetButton()
                             }
                         }
                     }
@@ -89,7 +91,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun CardForm() {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(modifier = Modifier.padding(4.dp)) {
             viewmodel.cardNumberField.ComposeUI(
                 onValueChange = {
                     debugLog("$TAG cardnumberState changed to: $it")
@@ -181,6 +183,17 @@ class MainActivity : ComponentActivity() {
             Text(viewmodel.textValue)
         }
     }
+
+    @Composable
+    private fun ResetButton() {
+        Button(onClick = {
+            debugLog("$TAG Reset button clicked")
+            viewmodel.reset()
+        }) {
+            Text("Reset")
+        }
+    }
+
 
     @Composable
     private fun getErrorText(
