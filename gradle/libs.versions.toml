@@ -1,19 +1,31 @@
 [versions]
-activityCompose = "1.8.2"
-agp = "8.3.1"
-appcompat = "1.6.1"
+activityCompose = "1.9.0"
+androidJunit = "1.2.1"
+apiChecker = "0.14.0"
+agp = "8.3.2"
+appcompat = "1.7.0"
 arrow = "1.2.4"
-composeCommonVersion = "1.6.4"
-coreKtx = "1.12.0"
+assertj = "3.25.3"
+composeCommonVersion = "1.6.8"
+coreKtx = "1.13.1"
+detekt = "1.23.4"
+espresso = "3.6.1"
 itu = "1.7.3"
-jackson = "2.16.0"
+jackson = "2.17.1"
 junit = "4.13.2"
 kotlin = "1.9.20"
-ktor = "2.3.9"
-lifecycleRuntimeKtx = "2.7.0"
+kotlinter = "4.3.0"
+kover = "0.7.4"
+ktor = "2.3.11"
+lifecycleRuntimeKtx = "2.8.3"
 material3 = "1.2.1"
-
+mockk = "1.13.9"
+robolectric = "4.11.1"
 slf4j-android = "1.7.36"
+slf4j-simple = "2.0.9"
+test-coroutines = "1.8.0"
+testlogger = "4.0.0"
+wiremock = "2.1.1"
 
 
 [libraries]
@@ -25,7 +37,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "composeCommonVersion" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "composeCommonVersion" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "composeCommonVersion" }
-androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "composeCommonVersion"}
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "composeCommonVersion" }
 
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
@@ -44,30 +56,30 @@ jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-
 itu = { module = "com.ethlo.time:itu", version.ref = "itu" }
 
 # Testing
-androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.1.5" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.5.1" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidJunit" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espresso" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "composeCommonVersion" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "composeCommonVersion" }
 
-assertj-core = { module = "org.assertj:assertj-core", version = "3.25.3" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.8.0" }
-mockk = { module = "io.mockk:mockk", version = "1.13.9" }
-slf4j-simple = { module = "org.slf4j:slf4j-simple", version = "2.0.9" }
-robolectric = { module = "org.robolectric:robolectric", version = "4.11.1" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "test-coroutines" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
-wiremock = { module = "com.marcinziolo:kotlin-wiremock", version = "2.1.1" }
+wiremock = { module = "com.marcinziolo:kotlin-wiremock", version.ref = "wiremock" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-apiChecker = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version = "0.14.0" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.4" }
+apiChecker = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "apiChecker" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlinter = { id = "org.jmailen.kotlinter", version = "4.3.0" }
-kover = { id = "org.jetbrains.kotlinx.kover", version = "0.7.4" }
-testLogger = { id = "com.adarshr.test-logger", version = "4.0.0" }
+kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+testLogger = { id = "com.adarshr.test-logger", version.ref = "testlogger" }
 
 [bundles]
 ktor-client = [

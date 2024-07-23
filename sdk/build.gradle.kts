@@ -152,7 +152,9 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
     testImplementation(libs.ui.test.junit4)
-    debugImplementation(libs.ui.test.manifest)
+
+    testImplementation(libs.ui.test.manifest)
+    debugImplementation(libs.androidx.ui.tooling)
 
     androidTestImplementation(libs.assertj.core)
     androidTestImplementation(libs.ui.test.junit4)
