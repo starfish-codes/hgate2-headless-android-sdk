@@ -13,7 +13,7 @@ espresso = "3.6.1"
 itu = "1.7.3"
 jackson = "2.17.1"
 junit = "4.13.2"
-kotlin = "1.9.20"
+kotlin = "2.0.0"
 kotlinter = "4.3.0"
 kover = "0.7.4"
 ktor = "2.3.11"
@@ -75,6 +75,7 @@ wiremock = { module = "com.marcinziolo:kotlin-wiremock", version.ref = "wiremock
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 apiChecker = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "apiChecker" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }

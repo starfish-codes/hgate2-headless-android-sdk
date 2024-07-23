@@ -27,7 +27,7 @@ class HellgateKtTest {
     class FetchSessionStatus {
         @Test
         fun `FetchSessionStatus for tokenize session, returns SessionStateRequireTokenization`() {
-            val testData = SessionResponse.Data.TokenizationParam("key_eu_pub", SessionResponse.Provider.External, "https://api.test.com")
+            val testData = SessionResponse.Data.TokenizationParam("key_eu_pub", SessionResponse.Provider.Guardian, "https://api.test.com")
             runTest {
                 val hellgate = internalHellgate(TEST_BASE_URL, "testId") {
                     mockk {
@@ -83,7 +83,7 @@ class HellgateKtTest {
 
         @Test
         fun `Create a Cardhandler and session is in right state, Returns a CardHandler`() = runTest {
-            val testData = SessionResponse.Data.TokenizationParam("key_eu_pub", SessionResponse.Provider.External, "https://api.test.com")
+            val testData = SessionResponse.Data.TokenizationParam("key_eu_pub", SessionResponse.Provider.Guardian, "https://api.test.com")
             val hellgate = internalHellgate(TEST_BASE_URL, "testId") {
                 mockk {
                     coEvery { fetchSession("testId") } returns SessionResponse(testData, NextAction.TOKENIZE_CARD, null).right()

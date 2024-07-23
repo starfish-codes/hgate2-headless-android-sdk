@@ -1,6 +1,7 @@
 package io.hellgate.android.sdk.demo
 
 import android.os.Bundle
+import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -23,6 +24,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+
         setContent {
 
             HellgateAndroidSDKTheme {

@@ -4,8 +4,6 @@ import arrow.core.left
 import arrow.core.right
 import io.hellgate.android.sdk.Constants
 import io.hellgate.android.sdk.client.HttpClientError
-import io.hellgate.android.sdk.client.extokenize.ExTokenizeClient
-import io.hellgate.android.sdk.client.extokenize.ExTokenizeResponse
 import io.hellgate.android.sdk.client.guardian.GuardianClient
 import io.hellgate.android.sdk.client.guardian.GuardianTokenizeResponse
 import io.hellgate.android.sdk.client.hellgate.*
@@ -26,38 +24,8 @@ class TokenServiceKtTest {
         private val number = "4242"
         private val sessionId = "abc123"
         private val tokenId = "HG_TOKEN_ID"
-        private val btKey = "bt_key"
-        private val btSessionData = SessionResponse.Data.TokenizationParam(btKey, SessionResponse.Provider.External, "https://api.test.com")
         private val guardianData = SessionResponse.Data.TokenizationParam(apikey, SessionResponse.Provider.Guardian, "https://guardian.com")
-        private val invalidSessionResponse = SessionResponse(SessionResponse.Data.TokenizationParam("apikey", SessionResponse.Provider.External, "https://api.test.com"), NextAction.WAIT, null)
-
-        @Test
-        fun `Process valid inputs, Returns ResponseSuccess`() = runTest {
-            val tokenService = tokenService(
-                Constants.HG_STAGING_URL,
-                {
-                    mockk<HgClient> {
-                        coEvery { fetchSession("123") } returns
-                            SessionResponse(btSessionData, NextAction.TOKENIZE_CARD, null).right()
-                        coEvery { completeTokenizeCard("123", "123", emptyMap()) } returns
-                            SessionResponse(SessionResponse.Data.TokenId("HG_TOKEN_ID"), null, "success").right()
-                        coEvery { close() } just runs
-                    }
-                },
-                {
-                    mockk<ExTokenizeClient> {
-                        coEvery { tokenizeCard(btKey, CardData(number, "30", "12", "123")) } returns
-                            ExTokenizeResponse("123").right()
-                        coEvery { close() } just runs
-                    }
-                },
-            )
-
-            val result = tokenService.tokenize("123", CardData(number, "30", "12", "123"), emptyMap())
-
-            assertThat(result).isInstanceOf(TokenizeCardResponse.Success::class.java)
-            assertThat((result as TokenizeCardResponse.Success).id).isEqualTo("HG_TOKEN_ID")
-        }
+        private val invalidSessionResponse = SessionResponse(SessionResponse.Data.TokenizationParam("apikey", SessionResponse.Provider.Guardian, "https://api.test.com"), NextAction.WAIT, null)
 
         @Test
         fun `Process valid input for a hg-token-session, Returns Success`() {

@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.compose.compiler)
     id("maven-publish")
     id("signing")
 
@@ -35,9 +36,6 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.5"
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

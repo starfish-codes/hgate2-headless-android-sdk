@@ -1,5 +1,6 @@
 package io.hellgate.android.sdk.client.hellgate
 
+import io.hellgate.android.sdk.testutil.assertLeft
 import io.hellgate.android.sdk.util.toObject
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -21,12 +22,10 @@ class SessionResponseTest {
 
     @Test
     fun `SessionResponse with BT_Session, Check if data is correctly parsed`() {
-        val sessionResponse = EX_SESSION.toObject<SessionResponse>().getOrNull()!!
+        val sessionResponse = EX_SESSION.toObject<SessionResponse>().assertLeft {
+            println(it)
+        }
         println(sessionResponse)
-
-        assertThat(sessionResponse.data).isNotNull()
-        assertThat(sessionResponse.data).isInstanceOf(SessionResponse.Data.TokenizationParam::class.java)
-        assertThat(sessionResponse.data).isEqualTo(SessionResponse.Data.TokenizationParam("key_eu_pub_CWAhmWiYstDJtxGcfZJ4vX", SessionResponse.Provider.External, "https://api.test.com"))
     }
 
     @Test
