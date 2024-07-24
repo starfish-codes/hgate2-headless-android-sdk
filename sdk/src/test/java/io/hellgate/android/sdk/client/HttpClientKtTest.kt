@@ -1,16 +1,17 @@
 package io.hellgate.android.sdk.client
 
+import io.hellgate.android.sdk.TestFactory.JWK
+import io.hellgate.android.sdk.TestFactory.TOKENIZE_CARD_RESPONSE
 import io.hellgate.android.sdk.client.hellgate.NextAction
 import io.hellgate.android.sdk.client.hellgate.SessionResponse
 import io.hellgate.android.sdk.testutil.*
 import io.hellgate.android.sdk.testutil.assertLeft
 import io.hellgate.android.sdk.testutil.assertRight
+import io.hellgate.android.sdk.util.jsonDeserialize
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.test.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-
-const val TOKENIZE_CARD_RESPONSE = """{"data":{"api_key":"key_eu_pub","provider":"guardian","base_url":"test123"},"next_action":"tokenize_card"}"""
 
 class HttpClientKtTest : WiremockTest() {
     @Test
@@ -40,11 +41,7 @@ class HttpClientKtTest : WiremockTest() {
         ).assertRight {
             assertThat(it).isEqualTo(
                 SessionResponse(
-                    SessionResponse.Data.TokenizationParam(
-                        "key_eu_pub",
-                        SessionResponse.Provider.Guardian,
-                        "test123",
-                    ),
+                    SessionResponse.Data.TokenizationParam(JWK.jsonDeserialize()),
                     NextAction.TOKENIZE_CARD,
                     null,
                 ),

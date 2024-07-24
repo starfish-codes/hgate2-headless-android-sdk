@@ -21,7 +21,7 @@ internal interface HgClient : Closeable {
 
     suspend fun completeTokenizeCard(
         sessionId: String,
-        tokenId: String,
+        encryptedData: String,
         additionalData: Map<AdditionalDataTypes, String>,
     ): Either<HttpClientError, SessionResponse>
 }
@@ -43,7 +43,7 @@ internal fun hgClient(
 
     override suspend fun completeTokenizeCard(
         sessionId: String,
-        tokenId: String,
+        encryptedData: String,
         additionalData: Map<AdditionalDataTypes, String>,
     ): Either<HttpClientError, SessionResponse> =
         client.eitherRequest<SessionResponse, SessionCompleteTokenizeCard>(
@@ -52,7 +52,7 @@ internal fun hgClient(
             listOf(SESSIONS, sessionId, COMPLETE_ACTION),
             body = SessionCompleteTokenizeCard(
                 result = Result(
-                    tokenId,
+                    encryptedData,
                     if (additionalData.isEmpty()) null else additionalData.toDTO(),
                 ),
             ),

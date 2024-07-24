@@ -1,6 +1,7 @@
 package io.hellgate.android.sdk.client.hellgate
 
 import com.fasterxml.jackson.annotation.*
+import com.fasterxml.jackson.databind.JsonNode
 import io.hellgate.android.sdk.element.additionaldata.AdditionalDataTypes
 
 internal data class SessionResponse(
@@ -17,15 +18,8 @@ internal data class SessionResponse(
         data class TokenId(val tokenId: String) : Data()
 
         data class TokenizationParam(
-            val apiKey: String,
-            val provider: Provider,
-            val baseUrl: String,
+            val jwk: JsonNode,
         ) : Data()
-    }
-
-    enum class Provider {
-        @JsonProperty("guardian")
-        Guardian,
     }
 }
 
@@ -42,7 +36,7 @@ internal data class SessionCompleteTokenizeCard(
     val result: Result,
 ) {
     data class Result(
-        val tokenId: String,
+        val encPayload: String,
         val additionalData: AdditionalData?,
     )
 

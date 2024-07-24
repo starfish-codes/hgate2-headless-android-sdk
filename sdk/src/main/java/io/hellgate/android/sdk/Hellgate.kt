@@ -3,7 +3,7 @@ package io.hellgate.android.sdk
 import androidx.annotation.MainThread
 import arrow.core.getOrElse
 import arrow.core.raise.either
-import io.hellgate.android.sdk.Constants.HG_STAGING_URL
+import io.hellgate.android.sdk.Constants.HG_URL
 import io.hellgate.android.sdk.client.hellgate.*
 import io.hellgate.android.sdk.client.hellgate.NextAction
 import io.hellgate.android.sdk.handler.*
@@ -13,7 +13,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal object Constants {
-    const val HG_STAGING_URL = "https://sandbox.hellgate.io"
+    const val HG_URL = "https://api.hellgate.io"
 }
 
 interface Hellgate {
@@ -26,13 +26,13 @@ interface Hellgate {
 
 @MainThread
 fun initHellgate(
-    hgBaseUrl: String = HG_STAGING_URL,
     sessionId: String,
-): Hellgate = internalHellgate(hgBaseUrl, sessionId)
+    hgBaseUrl: String = HG_URL,
+): Hellgate = internalHellgate(sessionId, hgBaseUrl)
 
 internal fun internalHellgate(
-    hgBaseUrl: String,
     sessionId: String,
+    hgBaseUrl: String,
     client: () -> HgClient = { hgClient(hgBaseUrl) },
 ) = object : Hellgate {
     private val mutex = Mutex()

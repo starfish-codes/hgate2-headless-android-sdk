@@ -8,6 +8,6 @@ class ConstantsTest {
     @Test
     fun `Constants, Check if all constants are correct`() {
         assertThat(Constants).isInstanceOf(Constants::class.java)
-        assertThat(Constants.HG_STAGING_URL).isEqualTo("https://sandbox.hellgate.io")
+        assertThat(Constants.HG_URL).isEqualTo("https://api.hellgate.io")
     }
 }

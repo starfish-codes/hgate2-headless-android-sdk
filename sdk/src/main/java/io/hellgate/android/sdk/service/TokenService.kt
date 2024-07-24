@@ -6,8 +6,6 @@ import arrow.core.raise.ensure
 import arrow.fx.coroutines.closeable
 import arrow.fx.coroutines.resourceScope
 import io.hellgate.android.sdk.client.HttpClientError
-import io.hellgate.android.sdk.client.guardian.GuardianClient
-import io.hellgate.android.sdk.client.guardian.guardianClient
 import io.hellgate.android.sdk.client.hellgate.*
 import io.hellgate.android.sdk.client.hellgate.HgClient
 import io.hellgate.android.sdk.client.hellgate.SessionResponse
@@ -35,7 +33,6 @@ private const val SUCCESS = "success"
 internal fun tokenService(
     hgUrl: String,
     hellgateClient: () -> HgClient = { hgClient(hgUrl) },
-    guardClient: (String) -> GuardianClient = { guardianClient(it) },
 ): ITokenService =
     object : ITokenService {
         override suspend fun tokenize(
@@ -52,11 +49,9 @@ internal fun tokenService(
                     ensure(info.data != null) { failed() }
                     ensure(info.data is SessionResponse.Data.TokenizationParam) { failed() }
 
-                    // TODO Add test for receiving `info.data.provider` != Guardian
-                    val guardianClient = closeable { guardClient(info.data.baseUrl) }
-                    val tokenId = guardianClient.tokenizeCard(info.data.apiKey, cardData).bind().id
+                    val encryptedData = createJWE(cardData, info.data.jwk)
 
-                    val result = hgClient.completeTokenizeCard(sessionId, tokenId, additionalData).bind()
+                    val result = hgClient.completeTokenizeCard(sessionId, encryptedData, additionalData).bind()
                     ensure(result.status == SUCCESS) { failed() }
                     ensure(result.data != null) { failed() }
                     ensure(result.data is SessionResponse.Data.TokenId) { failed() }

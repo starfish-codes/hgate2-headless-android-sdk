@@ -2,10 +2,12 @@ package io.hellgate.android.sdk.client.hellgate
 
 import arrow.fx.coroutines.closeable
 import arrow.fx.coroutines.resourceScope
+import io.hellgate.android.sdk.TestFactory.JWK
+import io.hellgate.android.sdk.TestFactory.TOKENIZE_CARD_RESPONSE
 import io.hellgate.android.sdk.client.HttpClientError
-import io.hellgate.android.sdk.client.TOKENIZE_CARD_RESPONSE
 import io.hellgate.android.sdk.element.additionaldata.AdditionalDataTypes
 import io.hellgate.android.sdk.testutil.*
+import io.hellgate.android.sdk.util.jsonDeserialize
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -24,7 +26,7 @@ class HgClientKtTest {
                 val info = hgClient.fetchSession("123")
 
                 info.assertRight {
-                    assertThat(it).isEqualTo(SessionResponse(SessionResponse.Data.TokenizationParam("key_eu_pub", SessionResponse.Provider.Guardian, "test123"), NextAction.TOKENIZE_CARD, null))
+                    assertThat(it).isEqualTo(SessionResponse(SessionResponse.Data.TokenizationParam(JWK.jsonDeserialize()), NextAction.TOKENIZE_CARD, null))
                 }
             }
         }
