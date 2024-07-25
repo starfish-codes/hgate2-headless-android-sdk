@@ -8,7 +8,6 @@ import io.hellgate.android.sdk.Constants
 import io.hellgate.android.sdk.client.HttpClientError
 import io.hellgate.android.sdk.client.hellgate.*
 import io.hellgate.android.sdk.client.hellgate.NextAction
-import io.hellgate.android.sdk.element.additionaldata.AdditionalDataTypes
 import io.hellgate.android.sdk.model.CardData
 import io.hellgate.android.sdk.model.TokenizeCardResponse
 import io.hellgate.android.sdk.util.jsonDeserialize
@@ -38,7 +37,6 @@ class TokenServiceKtTest {
                 override suspend fun completeTokenizeCard(
                     sessionId: String,
                     encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
                 ): Either<HttpClientError, SessionResponse> = SessionResponse(SessionResponse.Data.TokenId(tokenId), null, "success").right()
 
                 override fun close() = Unit
@@ -58,7 +56,6 @@ class TokenServiceKtTest {
                 override suspend fun completeTokenizeCard(
                     sessionId: String,
                     encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
                 ): Either<HttpClientError, SessionResponse> = HttpClientError("Error").left()
 
                 override fun close() = Unit
@@ -79,7 +76,6 @@ class TokenServiceKtTest {
                 override suspend fun completeTokenizeCard(
                     sessionId: String,
                     encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
                 ): Either<HttpClientError, SessionResponse> =
                     HttpClientError("Error").left()
 
@@ -102,7 +98,6 @@ class TokenServiceKtTest {
                 override suspend fun completeTokenizeCard(
                     sessionId: String,
                     encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
                 ): Either<HttpClientError, SessionResponse> =
                     HttpClientError("Error").left()
 
@@ -126,7 +121,6 @@ class TokenServiceKtTest {
                 override suspend fun completeTokenizeCard(
                     sessionId: String,
                     encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
                 ): Either<HttpClientError, SessionResponse> =
                     SessionResponse(null, null, "success").right()
 

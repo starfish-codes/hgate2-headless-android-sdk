@@ -8,6 +8,7 @@ import com.nimbusds.jose.crypto.RSAEncrypter
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jwt.EncryptedJWT
 import com.nimbusds.jwt.JWTClaimsSet
+import io.hellgate.android.sdk.element.additionaldata.AdditionalDataTypes
 import io.hellgate.android.sdk.model.CardData
 import io.hellgate.android.sdk.util.jsonSerialize
 
@@ -17,16 +18,20 @@ internal typealias JWE = String
 
 internal fun createJWE(
     cardData: CardData,
+    additionalData: Map<AdditionalDataTypes, String>,
     jwk: JsonNode,
 ): JWE {
     val header = JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM)
     val claims = JWTClaimsSet.Builder()
-        .claim("expiry_month", cardData.month.toInt())
-        .claim("expiry_year", cardData.year.toInt() + BASE_YEAR)
-        .claim("account_number", cardData.cardNumber)
-        .claim("security_code", cardData.cvc)
-        // TODO add additional data
-        // .claim("additional_data", mapOf("cardholder_name" to "John Doe"))
+        .apply {
+            claim("expiry_month", cardData.month.toInt())
+            claim("expiry_year", cardData.year.toInt() + BASE_YEAR)
+            claim("account_number", cardData.cardNumber)
+            claim("security_code", cardData.cvc)
+        }
+        .apply {
+            additionalData.forEach { (type, value) -> claim(type.getSerializeName(), value) }
+        }
         .build()
 
     val jwt = EncryptedJWT(header, claims)

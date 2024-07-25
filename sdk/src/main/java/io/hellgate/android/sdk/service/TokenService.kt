@@ -43,15 +43,15 @@ internal fun tokenService(
             either {
                 resourceScope {
                     val hgClient = closeable { hellgateClient() }
-                    val info = hgClient.fetchSession(sessionId).bind()
+                    val session = hgClient.fetchSession(sessionId).bind()
 
-                    ensure(info.nextAction == NextAction.TOKENIZE_CARD) { failed() }
-                    ensure(info.data != null) { failed() }
-                    ensure(info.data is SessionResponse.Data.TokenizationParam) { failed() }
+                    ensure(session.nextAction == NextAction.TOKENIZE_CARD) { failed() }
+                    ensure(session.data != null) { failed() }
+                    ensure(session.data is SessionResponse.Data.TokenizationParam) { failed() }
 
-                    val encryptedData = createJWE(cardData, info.data.jwk)
+                    val encryptedData = createJWE(cardData, additionalData, session.data.jwk)
 
-                    val result = hgClient.completeTokenizeCard(sessionId, encryptedData, additionalData).bind()
+                    val result = hgClient.completeTokenizeCard(sessionId, encryptedData).bind()
                     ensure(result.status == SUCCESS) { failed() }
                     ensure(result.data != null) { failed() }
                     ensure(result.data is SessionResponse.Data.TokenId) { failed() }

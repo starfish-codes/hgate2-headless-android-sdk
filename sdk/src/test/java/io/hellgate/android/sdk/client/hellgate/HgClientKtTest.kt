@@ -5,7 +5,6 @@ import arrow.fx.coroutines.resourceScope
 import io.hellgate.android.sdk.TestFactory.JWK
 import io.hellgate.android.sdk.TestFactory.TOKENIZE_CARD_RESPONSE
 import io.hellgate.android.sdk.client.HttpClientError
-import io.hellgate.android.sdk.element.additionaldata.AdditionalDataTypes
 import io.hellgate.android.sdk.testutil.*
 import io.hellgate.android.sdk.util.jsonDeserialize
 import kotlinx.coroutines.test.runTest
@@ -53,7 +52,7 @@ class HgClientKtTest {
 
             resourceScope {
                 val hgClient = closeable { hgClient(baseUrl) }
-                val result = hgClient.completeTokenizeCard("123", "token_123", emptyMap())
+                val result = hgClient.completeTokenizeCard("123", "token_123")
 
                 result.assertRight {
                     assertThat(it).isEqualTo(SessionResponse(SessionResponse.Data.TokenId("eaac6eac-6d09-469b-a981-f1be82b155f9"), null, "success"))
@@ -67,7 +66,7 @@ class HgClientKtTest {
 
             resourceScope {
                 val hgClient = closeable { hgClient(baseUrl) }
-                val result = hgClient.completeTokenizeCard("123", "token_123", mapOf(AdditionalDataTypes.CARDHOLDER_NAME to "John Doe"))
+                val result = hgClient.completeTokenizeCard("123", "token_123")
 
                 result.assertRight {
                     assertThat(it).isEqualTo(SessionResponse(SessionResponse.Data.TokenId("eaac6eac-6d09-469b-a981-f1be82b155f9"), null, "success"))
@@ -81,7 +80,7 @@ class HgClientKtTest {
 
             resourceScope {
                 val hgClient = closeable { hgClient(baseUrl) }
-                val result = hgClient.completeTokenizeCard("404", "token_123", emptyMap())
+                val result = hgClient.completeTokenizeCard("404", "token_123")
 
                 result.assertLeft {
                     assertThat(it).isEqualTo(HttpClientError("404 Not Found : {\"code\":404,\"message\":\"The session_context was not found\",\"classifier\":\"NOT_FOUND\"}", null))
