@@ -6,6 +6,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.ANDROID
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
@@ -16,6 +20,10 @@ internal fun httpClient() =
         expectSuccess = false
         install(ContentNegotiation) {
             registerJacksonConverter()
+        }
+        install(Logging) {
+            logger = Logger.ANDROID
+            level = LogLevel.ALL
         }
     }
 

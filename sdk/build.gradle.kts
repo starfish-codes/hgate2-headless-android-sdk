@@ -139,6 +139,8 @@ dependencies {
     implementation(libs.bundles.ktor.client)
     implementation(libs.ktor.client.logging)
 
+    implementation(libs.nimbus.jose.jwt)
+
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.assertj.core)

@@ -13,6 +13,7 @@ import io.hellgate.android.sdk.element.card.CardNumberField
 import io.hellgate.android.sdk.element.cvc.CvcNumberField
 import io.hellgate.android.sdk.element.exiprydate.ExpiryDateField
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class MainActivityViewModel : ViewModel() {
 
@@ -35,7 +36,7 @@ class MainActivityViewModel : ViewModel() {
         viewModelScope.launch {
             val sessionId: String = hgBackendClient().createSession().getOrNull()?.sessionId.orEmpty()
             sessionState = SessionState.UNKNOWN
-            hellgate = initHellgate(BuildConfig.HG_BACKEND_API_URL, sessionId)
+            hellgate = initHellgate(sessionId, BuildConfig.HG_BACKEND_API_URL)
         }
     }
 
@@ -67,7 +68,7 @@ class MainActivityViewModel : ViewModel() {
         }
     }
 
-    fun reset(){
+    fun reset() {
         sessionState = null
         textValue = "Submit"
     }
