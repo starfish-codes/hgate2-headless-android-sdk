@@ -36,7 +36,8 @@ internal fun cardHandler(
         return tokenService.tokenize(
             sessionId,
             cardData,
-            additionalData.associate { it.additionalDataTypes to it.value() },
+            additionalData.associate { it.additionalDataTypes to it.value() }
+                .filter { it.value.isNotBlank() },
         )
     }
 

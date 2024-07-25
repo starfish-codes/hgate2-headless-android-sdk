@@ -1,6 +1,6 @@
 package io.hellgate.android.sdk.element.additionaldata
 
-enum class AdditionalDataTypes(internal val label: String) {
+enum class AdditionalDataTypes(private val label: String) {
     CARDHOLDER_NAME("Cardholder Name"),
     EMAIL("E-Mail"),
     BILLING_ADDRESS_LINE_1("Billing Address Line 1"),
@@ -12,4 +12,6 @@ enum class AdditionalDataTypes(internal val label: String) {
     ;
 
     fun getLabel(): String = label
+
+    internal fun getSerializeName(): String = name.lowercase()
 }
