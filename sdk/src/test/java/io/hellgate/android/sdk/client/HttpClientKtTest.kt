@@ -1,6 +1,5 @@
 package io.hellgate.android.sdk.client
 
-import io.hellgate.android.sdk.client.extokenize.ExTokenizeResponse
 import io.hellgate.android.sdk.client.hellgate.NextAction
 import io.hellgate.android.sdk.client.hellgate.SessionResponse
 import io.hellgate.android.sdk.testutil.*
@@ -11,7 +10,7 @@ import kotlinx.coroutines.test.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-const val TOKENIZE_CARD_RESPONSE = """{"data":{"api_key":"key_eu_pub","provider":"basis_theory","base_url":"test123"},"next_action":"tokenize_card"}"""
+const val TOKENIZE_CARD_RESPONSE = """{"data":{"api_key":"key_eu_pub","provider":"guardian","base_url":"test123"},"next_action":"tokenize_card"}"""
 
 class HttpClientKtTest : WiremockTest() {
     @Test
@@ -19,7 +18,7 @@ class HttpClientKtTest : WiremockTest() {
         val client = simpleLoggerClient()
         wiremock.mockPostRequest("/sessionId", "", 401)
 
-        client.eitherRequest<ExTokenizeResponse, String>(
+        client.eitherRequest<SessionResponse, String>(
             HttpMethod.Post,
             baseUrl,
             listOf("sessionId"),
@@ -43,7 +42,7 @@ class HttpClientKtTest : WiremockTest() {
                 SessionResponse(
                     SessionResponse.Data.TokenizationParam(
                         "key_eu_pub",
-                        SessionResponse.Provider.External,
+                        SessionResponse.Provider.Guardian,
                         "test123",
                     ),
                     NextAction.TOKENIZE_CARD,

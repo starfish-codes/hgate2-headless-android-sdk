@@ -6,8 +6,6 @@ import arrow.core.raise.ensure
 import arrow.fx.coroutines.closeable
 import arrow.fx.coroutines.resourceScope
 import io.hellgate.android.sdk.client.HttpClientError
-import io.hellgate.android.sdk.client.extokenize.*
-import io.hellgate.android.sdk.client.extokenize.ExTokenizeClient
 import io.hellgate.android.sdk.client.guardian.GuardianClient
 import io.hellgate.android.sdk.client.guardian.guardianClient
 import io.hellgate.android.sdk.client.hellgate.*
@@ -22,10 +20,8 @@ internal interface ITokenService {
     /**
      * Tokenize a card
      * @param sessionId The session id created with a x-api-key on the hg-backend
-     * @param cardNumber The card number
-     * @param year The year of the card 2 digits
-     * @param month The month of the card 2 digits
-     * @param cvc The cvc of the card
+     * @param cardData The card data to tokenize
+     * @param additionalData Additional data to send to the hg-backend
      */
     suspend fun tokenize(
         sessionId: String,
@@ -39,7 +35,6 @@ private const val SUCCESS = "success"
 internal fun tokenService(
     hgUrl: String,
     hellgateClient: () -> HgClient = { hgClient(hgUrl) },
-    exClient: (String) -> ExTokenizeClient = { exTokenizeClient(it) },
     guardClient: (String) -> GuardianClient = { guardianClient(it) },
 ): ITokenService =
     object : ITokenService {
@@ -57,17 +52,9 @@ internal fun tokenService(
                     ensure(info.data != null) { failed() }
                     ensure(info.data is SessionResponse.Data.TokenizationParam) { failed() }
 
-                    val tokenId = when (info.data.provider) {
-                        SessionResponse.Provider.External -> {
-                            val btClient = closeable { exClient(info.data.baseUrl) }
-                            btClient.tokenizeCard(info.data.apiKey, cardData).bind().id
-                        }
-
-                        SessionResponse.Provider.Guardian -> {
-                            val guardianClient = closeable { guardClient(info.data.baseUrl) }
-                            guardianClient.tokenizeCard(info.data.apiKey, cardData).bind().id
-                        }
-                    }
+                    // TODO Add test for receiving `info.data.provider` != Guardian
+                    val guardianClient = closeable { guardClient(info.data.baseUrl) }
+                    val tokenId = guardianClient.tokenizeCard(info.data.apiKey, cardData).bind().id
 
                     val result = hgClient.completeTokenizeCard(sessionId, tokenId, additionalData).bind()
                     ensure(result.status == SUCCESS) { failed() }

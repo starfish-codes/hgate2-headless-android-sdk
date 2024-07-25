@@ -24,9 +24,6 @@ internal data class SessionResponse(
     }
 
     enum class Provider {
-        @JsonProperty("basis_theory")
-        External,
-
         @JsonProperty("guardian")
         Guardian,
     }

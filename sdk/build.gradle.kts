@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.compose.compiler)
     id("maven-publish")
     id("signing")
 
@@ -35,9 +36,6 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.5"
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -152,7 +150,9 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
     testImplementation(libs.ui.test.junit4)
-    debugImplementation(libs.ui.test.manifest)
+
+    testImplementation(libs.ui.test.manifest)
+    debugImplementation(libs.androidx.ui.tooling)
 
     androidTestImplementation(libs.assertj.core)
     androidTestImplementation(libs.ui.test.junit4)

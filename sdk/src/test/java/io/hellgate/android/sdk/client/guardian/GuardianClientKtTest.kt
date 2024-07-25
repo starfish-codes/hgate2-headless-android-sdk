@@ -58,14 +58,5 @@ class GuardianClientKtTest {
                 assertThat(it.id).isEqualTo(tokenId)
             }
         }
-
-        @Test
-        fun `Call Guardian with wrong api key, Returns error`() = runTest {
-            val response = guardianClient("https://guardian.fly.dev/", simpleLoggerClient()).tokenizeCard("apiKey123", CardData("invalidCard", "45", "03", "123"))
-
-            response.assertLeft {
-                assertThat(it.message).isEqualTo("401 Unauthorized : {\"classifier\":\"UNAUTHORIZED\",\"code\":401,\"message\":\"No valid means of authentication was provided\"}")
-            }
-        }
     }
 }

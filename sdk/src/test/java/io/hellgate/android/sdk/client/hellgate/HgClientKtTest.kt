@@ -24,7 +24,7 @@ class HgClientKtTest {
                 val info = hgClient.fetchSession("123")
 
                 info.assertRight {
-                    assertThat(it).isEqualTo(SessionResponse(SessionResponse.Data.TokenizationParam("key_eu_pub", SessionResponse.Provider.External, "test123"), NextAction.TOKENIZE_CARD, null))
+                    assertThat(it).isEqualTo(SessionResponse(SessionResponse.Data.TokenizationParam("key_eu_pub", SessionResponse.Provider.Guardian, "test123"), NextAction.TOKENIZE_CARD, null))
                 }
             }
         }
