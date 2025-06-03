@@ -1,5 +1,4 @@
 import com.adarshr.gradle.testlogger.theme.ThemeType
-import java.io.ByteArrayOutputStream
 
 plugins {
     alias(libs.plugins.androidLibrary)
@@ -18,7 +17,7 @@ plugins {
 android {
     group = "io.hellgate"
     namespace = "$group.android.sdk"
-    compileSdk = 34
+    compileSdk = 36
 
     val currentVersion: String by project
     version = currentVersion.drop(1)
@@ -172,15 +171,7 @@ testlogger {
     theme = ThemeType.MOCHA
 }
 
-koverReport {
-    androidReports("debug") {}
-    defaults {
-        mergeWith("debug")
-    }
-}
-
 tasks {
-
     task("lintDetekt") {
         group = "verification"
         dependsOn("lintKotlin")
@@ -202,30 +193,35 @@ tasks {
         from(layout.buildDirectory.dir("staging-deploy").get().asFile)
     }
 
-    task("uploadToMavenCentral") {
+    task<Exec>("uploadToMavenCentral") {
         group = "publishing"
 
+        val folder = layout.buildDirectory.dir("mavenCentral").get().asFile
+        val zipFile = folder.listFiles { _, name -> name.startsWith("android") }
+            ?.first()
+        val absolutePath = zipFile?.absolutePath.orEmpty()
+        val uploadName = zipFile?.nameWithoutExtension.orEmpty()
+        val token = project.findProperty("maven.central.token") as? String
+            ?: throw GradleException("Property 'maven.central.token' not set")
+
+
+        val command = listOf(
+            "curl",
+            "--location", "https://central.sonatype.com/api/v1/publisher/upload?name=$uploadName&publishingType=USER_MANAGED",
+            "--header", "Authorization:Bearer $token",
+            "--form", "bundle=@$absolutePath",
+        )
+
+        commandLine = command
+
         doLast {
-            val folder = layout.buildDirectory.dir("mavenCentral").get().asFile
-            val zipFile = folder.listFiles { _, name -> name.startsWith("android") }
-                ?.first()
-            val absolutePath = zipFile?.absolutePath.orEmpty()
-            val uploadName = zipFile?.nameWithoutExtension.orEmpty()
-
-            val command = listOf(
-                "curl",
-                "--location", "https://central.sonatype.com/api/v1/publisher/upload?name=$uploadName&publishingType=USER_MANAGED",
-                "--header", "Authorization:Bearer ${project.properties["maven.central.token"]}",
-                "--form", "bundle=@$absolutePath",
-            )
-
-            val output = ByteArrayOutputStream()
-            println("Uploading $zipFile to Maven Central")
-            exec {
-                commandLine = command
-                standardOutput = output
+            println("Upload to Maven Central completed successfully.")
+        }
+        doFirst {
+            if (zipFile == null) {
+                throw GradleException("No zip file found in staging deploy directory")
             }
-            println("Deployment created with id: $output")
+            println("Uploading $zipFile to Maven Central")
         }
     }
 
