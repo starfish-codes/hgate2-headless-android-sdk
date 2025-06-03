@@ -23,7 +23,9 @@ import kotlinx.coroutines.launch
  * A composable representing a card number field.
  * @param fieldLabel The label to be displayed on the field. Default is "Card Number". Provide a custom label / i18n if needed.
  */
-class CardNumberField(private val fieldLabel: String = LABEL) {
+class CardNumberField(
+    private val fieldLabel: String = LABEL,
+) {
     private val controller = CardNumberFieldController()
 
     val maxBrandCvcLength: Flow<Int> = controller.impliedCardBrand.map { it.maxCvcLength }

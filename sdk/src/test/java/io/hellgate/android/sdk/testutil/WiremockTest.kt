@@ -10,16 +10,17 @@ import io.ktor.client.plugins.logging.*
 import org.junit.Rule
 import java.net.ServerSocket
 
-fun simpleLoggerClient(): HttpClient = HttpClient(OkHttp) {
-    expectSuccess = false
-    install(ContentNegotiation) {
-        registerJacksonConverter()
+fun simpleLoggerClient(): HttpClient =
+    HttpClient(OkHttp) {
+        expectSuccess = false
+        install(ContentNegotiation) {
+            registerJacksonConverter()
+        }
+        install(Logging) {
+            logger = Logger.SIMPLE
+            level = LogLevel.ALL
+        }
     }
-    install(Logging) {
-        logger = Logger.SIMPLE
-        level = LogLevel.ALL
-    }
-}
 
 fun findRandomPort(): Int {
     ServerSocket(0).use { socket -> return socket.localPort }

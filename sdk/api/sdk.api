@@ -115,9 +115,8 @@ public final class io/hellgate/android/sdk/element/cvc/CvcNumberField {
 
 public final class io/hellgate/android/sdk/element/exiprydate/ComposableSingletons$ExpiryDateFieldKt {
 	public static final field INSTANCE Lio/hellgate/android/sdk/element/exiprydate/ComposableSingletons$ExpiryDateFieldKt;
-	public static field lambda-1 Lkotlin/jvm/functions/Function2;
 	public fun <init> ()V
-	public final fun getLambda-1$sdk_release ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$1673530206$sdk_release ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class io/hellgate/android/sdk/element/exiprydate/ExpiryDateField {

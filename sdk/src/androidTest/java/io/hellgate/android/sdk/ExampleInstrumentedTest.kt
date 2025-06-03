@@ -40,28 +40,29 @@ class ExampleInstrumentedTest {
     private fun field() = composeTestRule.onNodeWithTag(DataField.TEST_TAG + AdditionalDataTypes.CARDHOLDER_NAME.name)
 
     @Test
-    fun assertOutlineColorTest() = runTest {
-        val redColor = Color(0xFFFF1744)
-        val cardholderField = DataField(additionalDataTypes = AdditionalDataTypes.CARDHOLDER_NAME)
-        var cardholderFieldState: AdditionalDataFieldState? = null
+    fun assertOutlineColorTest() =
+        runTest {
+            val redColor = Color(0xFFFF1744)
+            val cardholderField = DataField(additionalDataTypes = AdditionalDataTypes.CARDHOLDER_NAME)
+            var cardholderFieldState: AdditionalDataFieldState? = null
 
-        composeTestRule.setContent {
-            MaterialTheme(colorScheme = lightColorScheme(error = redColor)) {
-                cardholderField.ComposeUI(
-                    onValueChange = { cardholderFieldState = it },
-                    true,
-                )
+            composeTestRule.setContent {
+                MaterialTheme(colorScheme = lightColorScheme(error = redColor)) {
+                    cardholderField.ComposeUI(
+                        onValueChange = { cardholderFieldState = it },
+                        true,
+                    )
+                }
             }
+
+            field().apply { performTextInput("John Doe") }
+                .assertTextEquals("Cardholder Name", "John Doe")
+
+            field().assertContainsColor(redColor)
+            // Check final state
+            assertThat(cardholderField.value()).isEqualTo("John Doe")
+            assertThat(cardholderFieldState).isEqualTo(AdditionalDataFieldState(empty = false, value = "John Doe"))
         }
-
-        field().apply { performTextInput("John Doe") }
-            .assertTextEquals("Cardholder Name", "John Doe")
-
-        field().assertContainsColor(redColor)
-        // Check final state
-        assertThat(cardholderField.value()).isEqualTo("John Doe")
-        assertThat(cardholderFieldState).isEqualTo(AdditionalDataFieldState(empty = false, value = "John Doe"))
-    }
 
     private fun SemanticsNodeInteraction.assertContainsColor(color: Color) {
         val imageBitmap = this.captureToImage()

@@ -201,9 +201,7 @@ tasks {
             ?.first()
         val absolutePath = zipFile?.absolutePath.orEmpty()
         val uploadName = zipFile?.nameWithoutExtension.orEmpty()
-        val token = project.findProperty("maven.central.token") as? String
-            ?: throw GradleException("Property 'maven.central.token' not set")
-
+        val token = project.findProperty("maven.central.token") as? String ?: ""
 
         val command = listOf(
             "curl",

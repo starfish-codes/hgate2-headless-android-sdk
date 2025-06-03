@@ -23,10 +23,11 @@ private val test_uuid = UUID.randomUUID().toString()
 class HellgateKtTest {
     class InitHellgate {
         @Test
-        fun `Run initHellgate, a hellgate object with correct params`() = runTest {
-            val hellgate = initHellgate(test_uuid, TEST_BASE_URL)
-            assertThat(hellgate).isInstanceOf(Hellgate::class.java)
-        }
+        fun `Run initHellgate, a hellgate object with correct params`() =
+            runTest {
+                val hellgate = initHellgate(test_uuid, TEST_BASE_URL)
+                assertThat(hellgate).isInstanceOf(Hellgate::class.java)
+            }
     }
 
     class FetchSessionStatus {
@@ -46,60 +47,64 @@ class HellgateKtTest {
         }
 
         @Test
-        fun `FetchSessionStatus for waiting session, returns SessionStateWaiting`() = runTest {
-            val hellgate = internalHellgate(test_uuid, TEST_BASE_URL) {
-                mockk {
-                    coEvery { fetchSession(test_uuid) } returns SessionResponse(null, NextAction.WAIT, null).right()
-                    every { close() } just Runs
+        fun `FetchSessionStatus for waiting session, returns SessionStateWaiting`() =
+            runTest {
+                val hellgate = internalHellgate(test_uuid, TEST_BASE_URL) {
+                    mockk {
+                        coEvery { fetchSession(test_uuid) } returns SessionResponse(null, NextAction.WAIT, null).right()
+                        every { close() } just Runs
+                    }
                 }
-            }
 
-            assertThat(hellgate.fetchSessionStatus()).isEqualTo(SessionState.WAITING)
-        }
+                assertThat(hellgate.fetchSessionStatus()).isEqualTo(SessionState.WAITING)
+            }
 
         @Test
-        fun `FetchSessionStatus for complete session, returns SessionStateComplete`() = runTest {
-            val hellgate = internalHellgate(test_uuid, TEST_BASE_URL) {
-                mockk {
-                    coEvery { fetchSession(test_uuid) } returns SessionResponse(null, null, "success").right()
-                    every { close() } just Runs
+        fun `FetchSessionStatus for complete session, returns SessionStateComplete`() =
+            runTest {
+                val hellgate = internalHellgate(test_uuid, TEST_BASE_URL) {
+                    mockk {
+                        coEvery { fetchSession(test_uuid) } returns SessionResponse(null, null, "success").right()
+                        every { close() } just Runs
+                    }
                 }
-            }
 
-            assertThat(hellgate.fetchSessionStatus()).isEqualTo(SessionState.COMPLETED)
-        }
+                assertThat(hellgate.fetchSessionStatus()).isEqualTo(SessionState.COMPLETED)
+            }
     }
 
     class Cardhandler {
         @Test
-        fun `Create a Cardhandler but session is not in right state, Returns invalid session response`() = runTest {
-            val hellgate = internalHellgate(test_uuid, TEST_BASE_URL) {
-                mockk {
-                    coEvery { fetchSession(test_uuid) } returns SessionResponse(null, null, "success").right()
-                    every { close() } just Runs
+        fun `Create a Cardhandler but session is not in right state, Returns invalid session response`() =
+            runTest {
+                val hellgate = internalHellgate(test_uuid, TEST_BASE_URL) {
+                    mockk {
+                        coEvery { fetchSession(test_uuid) } returns SessionResponse(null, null, "success").right()
+                        every { close() } just Runs
+                    }
+                }
+                hellgate.cardHandler().onFailure {
+                    assertThat(it.message).isEqualTo("Session is not in correct state to tokenize card, actual state: COMPLETED")
+                }.onSuccess {
+                    fail("Should not be successful")
                 }
             }
-            hellgate.cardHandler().onFailure {
-                assertThat(it.message).isEqualTo("Session is not in correct state to tokenize card, actual state: COMPLETED")
-            }.onSuccess {
-                fail("Should not be successful")
-            }
-        }
 
         @Test
-        fun `Create a Cardhandler and session is in right state, Returns a CardHandler`() = runTest {
-            val testData = SessionResponse.Data.TokenizationParam(JWK.jsonDeserialize())
-            val hellgate = internalHellgate(test_uuid, TEST_BASE_URL) {
-                mockk {
-                    coEvery { fetchSession(test_uuid) } returns SessionResponse(testData, NextAction.TOKENIZE_CARD, null).right()
-                    every { close() } just Runs
+        fun `Create a Cardhandler and session is in right state, Returns a CardHandler`() =
+            runTest {
+                val testData = SessionResponse.Data.TokenizationParam(JWK.jsonDeserialize())
+                val hellgate = internalHellgate(test_uuid, TEST_BASE_URL) {
+                    mockk {
+                        coEvery { fetchSession(test_uuid) } returns SessionResponse(testData, NextAction.TOKENIZE_CARD, null).right()
+                        every { close() } just Runs
+                    }
+                }
+                hellgate.cardHandler().onSuccess {
+                    assertThat(it).isInstanceOf(CardHandler::class.java)
+                }.onFailure {
+                    fail("Should not be failure")
                 }
             }
-            hellgate.cardHandler().onSuccess {
-                assertThat(it).isInstanceOf(CardHandler::class.java)
-            }.onFailure {
-                fail("Should not be failure")
-            }
-        }
     }
 }

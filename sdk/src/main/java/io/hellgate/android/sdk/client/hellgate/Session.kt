@@ -14,7 +14,9 @@ internal data class SessionResponse(
         JsonSubTypes.Type(value = Data.TokenizationParam::class),
     )
     sealed class Data {
-        data class TokenId(val tokenId: String) : Data()
+        data class TokenId(
+            val tokenId: String,
+        ) : Data()
 
         data class TokenizationParam(
             val jwk: JsonNode,
