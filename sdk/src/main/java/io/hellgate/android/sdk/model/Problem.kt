@@ -14,7 +14,6 @@ data class InvalidSessionState(
         fun notTokenizeCard(actualState: String) =
             InvalidSessionState("Session is not in correct state to tokenize card, actual state: $actualState")
 
-        fun notTDSToComplete(actualState: String) =
-            InvalidSessionState("Session is not in correct state to complete TDS, actual state: $actualState")
+        fun genericError() = InvalidSessionState("Session is not in correct state to tokenize card")
     }
 }

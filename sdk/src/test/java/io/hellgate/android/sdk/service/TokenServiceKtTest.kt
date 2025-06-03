@@ -88,13 +88,13 @@ class TokenServiceKtTest {
                 val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
 
                 assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
-                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Tokenization failed")
+                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Unexpected Hellgate response, next action is not TOKENIZE_CARD, actual: WAIT")
             }
 
         @Test
         fun `Process valid data but session data is null, Return Tokenization failed`() =
             runTest {
-                val nullDAtaMock = object : HgClient {
+                val nullDataMock = object : HgClient {
                     override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = SessionResponse(null, NextAction.TOKENIZE_CARD, null).right()
 
                     override suspend fun completeTokenizeCard(
@@ -105,12 +105,12 @@ class TokenServiceKtTest {
                     override fun close() = Unit
                 }
 
-                val tokenService = tokenService(Constants.HG_URL) { nullDAtaMock }
+                val tokenService = tokenService(Constants.HG_URL) { nullDataMock }
 
                 val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
 
                 assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
-                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Tokenization failed")
+                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Session is not in correct state to tokenize card")
             }
 
         @Test
@@ -131,7 +131,7 @@ class TokenServiceKtTest {
                 val result = tokenService.tokenize(sessionId, CardData("4242", "30", "12", "123"), emptyMap())
 
                 assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
-                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Tokenization failed")
+                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Unexpected response from Hellgate, tokenization failed or session data is invalid")
             }
     }
 }

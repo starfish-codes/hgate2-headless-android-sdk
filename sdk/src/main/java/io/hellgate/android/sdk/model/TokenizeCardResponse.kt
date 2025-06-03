@@ -9,7 +9,6 @@ sealed class TokenizeCardResponse {
 
     data class Failure(
         val message: String,
-        val throwable: Throwable? = null,
         val validationErrors: List<CardDataValidationError> = emptyList(),
     ) : TokenizeCardResponse()
 }

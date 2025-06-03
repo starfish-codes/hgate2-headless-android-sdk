@@ -27,50 +27,57 @@ class MainActivity : ComponentActivity() {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         setContent {
-
             HellgateAndroidSDKTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = Color(0xffe9f2f4)) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(WindowInsets.safeDrawing.asPaddingValues()),
+                    color = Color(0xffe9f2f4),
+                ) {
+
+                    val sessionState by viewmodel.sessionState.collectAsState(null)
+
                     Column(
                         verticalArrangement = Arrangement.spacedBy(20.dp),
-                        modifier = Modifier.fillMaxSize().padding(12.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
                     ) {
 
-                        when (viewmodel.sessionState) {
+                        when (sessionState) {
                             null -> {
-                                Text("Session status: ${viewmodel.sessionState}")
-                                Button(onClick = {
-                                    viewmodel.createNewSession()
-                                }) {
+                                Text("Session status: null")
+                                Button(onClick = viewmodel::createNewSession) {
                                     Text("Create new session")
                                 }
                             }
 
                             SessionState.UNKNOWN -> {
-                                Text("Session status: ${viewmodel.sessionState}")
+                                Text("Session status: $sessionState")
                                 FetchButton()
                             }
 
                             SessionState.REQUIRE_TOKENIZATION -> {
-                                Text("Session status: ${viewmodel.sessionState}")
+                                Text("Session status: $sessionState")
                                 CardForm()
                                 StatePrintout()
                                 SubmitButton()
                             }
 
                             SessionState.WAITING -> {
-                                Text("Session status: ${viewmodel.sessionState}")
+                                Text("Session status: $sessionState")
                                 CircularProgressIndicator()
                                 LaunchedEffect(Unit) {
                                     while (true) {
-                                        debugLog("Session status: ${viewmodel.sessionState}")
+                                        debugLog("Session status: $sessionState")
                                         viewmodel.fetchSessionStatus()
                                         delay(500)
                                     }
                                 }
                             }
 
-                            SessionState.COMPLETED -> {
-                                Text("Session status: ${viewmodel.sessionState}")
+                            SessionState.COMPLETED, SessionState.FAILURE -> {
+                                Text("Session status: $sessionState")
                                 Text(viewmodel.textValue)
                                 ResetButton()
                             }
@@ -83,10 +90,12 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun FetchButton() {
-        Button(onClick = {
-            debugLog("$TAG Fetch button clicked")
-            viewmodel.fetchSessionStatus()
-        }) {
+        Button(
+            onClick = {
+                debugLog("$TAG Fetch button clicked")
+                viewmodel.fetchSessionStatus()
+            },
+        ) {
             Text("Fetch session status")
         }
     }
@@ -109,8 +118,8 @@ class MainActivity : ComponentActivity() {
                     focusedTextColor = Color.Black,
                     focusedContainerColor = Color.White,
                     unfocusedTextColor = Color.Black,
-                    unfocusedContainerColor = Color.White
-                )
+                    unfocusedContainerColor = Color.White,
+                ),
             )
             Row {
                 viewmodel.expiryDateField.ComposeUI(
@@ -127,8 +136,8 @@ class MainActivity : ComponentActivity() {
                         focusedTextColor = Color.Black,
                         focusedContainerColor = Color.White,
                         unfocusedTextColor = Color.Black,
-                        unfocusedContainerColor = Color.White
-                    )
+                        unfocusedContainerColor = Color.White,
+                    ),
                 )
                 viewmodel.cvcField.ComposeUI(
                     modifier = Modifier.padding(start = 10.dp),
@@ -144,8 +153,8 @@ class MainActivity : ComponentActivity() {
                         focusedTextColor = Color.Black,
                         focusedContainerColor = Color.White,
                         unfocusedTextColor = Color.Black,
-                        unfocusedContainerColor = Color.White
-                    )
+                        unfocusedContainerColor = Color.White,
+                    ),
                 )
             }
             viewmodel.cardholderNameField.ComposeUI(
@@ -164,8 +173,8 @@ class MainActivity : ComponentActivity() {
                     focusedTextColor = Color.Black,
                     focusedContainerColor = Color.White,
                     unfocusedTextColor = Color.Black,
-                    unfocusedContainerColor = Color.White
-                )
+                    unfocusedContainerColor = Color.White,
+                ),
             )
         }
     }
@@ -179,20 +188,24 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun SubmitButton() {
-        Button(onClick = {
-            debugLog("$TAG Submit button clicked")
-            viewmodel.submit()
-        }) {
+        Button(
+            onClick = {
+                debugLog("$TAG Submit button clicked")
+                viewmodel.submit()
+            },
+        ) {
             Text(viewmodel.textValue)
         }
     }
 
     @Composable
     private fun ResetButton() {
-        Button(onClick = {
-            debugLog("$TAG Reset button clicked")
-            viewmodel.reset()
-        }) {
+        Button(
+            onClick = {
+                debugLog("$TAG Reset button clicked")
+                viewmodel.reset()
+            },
+        ) {
             Text("Reset")
         }
     }

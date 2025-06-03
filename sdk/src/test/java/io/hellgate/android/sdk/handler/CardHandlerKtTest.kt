@@ -1,6 +1,5 @@
 package io.hellgate.android.sdk.handler
 
-import arrow.core.toNonEmptyListOrNull
 import io.hellgate.android.sdk.element.additionaldata.AdditionalDataTypes
 import io.hellgate.android.sdk.element.additionaldata.DataField
 import io.hellgate.android.sdk.element.card.CardNumberField
@@ -63,7 +62,7 @@ class CardHandlerKtTest {
 
             val result = cardHandler(mockk<ITokenService>(), sessionID).tokenizeCard(cardMockk, cvcMockk, expiryDateField)
 
-            assertThat(result).isEqualTo(TokenizeCardResponse.Failure("Invalid card number", validationErrors = listOf(InvalidCardNumber)))
+            assertThat(result).isEqualTo(TokenizeCardResponse.Failure("Card data validation failed", validationErrors = listOf(InvalidCardNumber)))
         }
 
     @Test
@@ -84,8 +83,8 @@ class CardHandlerKtTest {
 
             assertThat(result).isEqualTo(
                 TokenizeCardResponse.Failure(
-                    "Invalid card number, Invalid expiry date, Invalid cvc",
-                    validationErrors = listOf(InvalidCardNumber, InvalidExpiryDate, InvalidCvc).toNonEmptyListOrNull()!!,
+                    "Card data validation failed",
+                    validationErrors = listOf(InvalidCardNumber, InvalidExpiryDate, InvalidCvc),
                 ),
             )
         }

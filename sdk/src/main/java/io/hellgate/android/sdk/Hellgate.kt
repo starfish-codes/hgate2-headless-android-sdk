@@ -48,6 +48,7 @@ internal fun internalHellgate(
 
                     null -> when (sessionInfo.status) {
                         "success" -> SessionState.COMPLETED
+                        "failure" -> SessionState.FAILURE
                         else -> SessionState.UNKNOWN
                     }
                 }
@@ -71,5 +72,6 @@ enum class SessionState {
     REQUIRE_TOKENIZATION,
     WAITING,
     COMPLETED,
+    FAILURE,
     UNKNOWN,
 }

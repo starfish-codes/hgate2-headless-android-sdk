@@ -12,6 +12,7 @@ internal data class SessionResponse(
     @JsonSubTypes(
         JsonSubTypes.Type(value = Data.TokenId::class),
         JsonSubTypes.Type(value = Data.TokenizationParam::class),
+        JsonSubTypes.Type(value = Data.Error::class),
     )
     sealed class Data {
         data class TokenId(
@@ -20,6 +21,11 @@ internal data class SessionResponse(
 
         data class TokenizationParam(
             val jwk: JsonNode,
+        ) : Data()
+
+        data class Error(
+            val reason: String,
+            val reasonCode: String,
         ) : Data()
     }
 }
