@@ -18,13 +18,13 @@ import kotlinx.coroutines.launch
 
 class MainActivityViewModel : ViewModel() {
 
-    val cardNumberField = CardNumberField()
+    var cardNumberField = CardNumberField()
     val cardNumberState = MutableStateFlow(FieldState())
-    val expiryDateField = ExpiryDateField()
+    var expiryDateField = ExpiryDateField()
     val expiryDateState = MutableStateFlow(FieldState())
-    val cvcField = CvcNumberField(cardNumberField.maxBrandCvcLength)
+    var cvcField = CvcNumberField(cardNumberField.maxBrandCvcLength)
     val cvcState = MutableStateFlow(FieldState())
-    val cardholderNameField = DataField(AdditionalDataTypes.CARDHOLDER_NAME)
+    var cardholderNameField = DataField(AdditionalDataTypes.CARDHOLDER_NAME)
     val cardholderError = MutableStateFlow(false)
     val cardholderNameState = MutableStateFlow(AdditionalDataFieldState())
 
@@ -34,27 +34,34 @@ class MainActivityViewModel : ViewModel() {
     val sessionState = MutableStateFlow<SessionState?>(null)
     val loading = MutableStateFlow(false)
 
-    // TODO Implement loading state management
-    // val loading = true to null
-    // fun doneLoading(state: SessionState) {
-    //     sessionState.value = false to state
-    // }
+    fun loading() {
+        loading.value = true
+    }
+
+    fun doneLoading() {
+        loading.value = false
+    }
 
     fun createNewSession() {
+        loading()
         viewModelScope.launch {
             val sessionId: String = hgBackendClient().createSession().getOrNull()?.sessionId.orEmpty()
             sessionState.value = SessionState.UNKNOWN
             hellgate = initHellgate(sessionId, BuildConfig.HG_BACKEND_API_URL)
+            doneLoading()
         }
     }
 
     fun fetchSessionStatus() {
+        loading()
         viewModelScope.launch {
             sessionState.value = hellgate.fetchSessionStatus()
+            doneLoading()
         }
     }
 
     fun submit() {
+        loading()
         viewModelScope.launch {
             hellgate.cardHandler().fold(
                 onSuccess = {
@@ -68,10 +75,12 @@ class MainActivityViewModel : ViewModel() {
 
                     handleResponse(response)
                     textValue = response.toString()
-                    fetchSessionStatus()
                 },
-                onFailure = { debugLog("$TAG Failure, cardHandler not created: " + it.message.toString()) },
+                onFailure = {
+                    debugLog("$TAG Failure, cardHandler not created: " + it.message.toString())
+                },
             )
+            doneLoading()
         }
     }
 
@@ -80,11 +89,13 @@ class MainActivityViewModel : ViewModel() {
             is TokenizeCardResponse.Success -> {
                 debugLog("$TAG Tokenization successful, token ID: ${response.id}")
                 textValue = "Token ID: ${response.id}"
+                sessionState.value = SessionState.COMPLETED
             }
 
             is TokenizeCardResponse.Failure -> {
                 debugLog("$TAG Tokenization failed: ${response.message}, Validation Errors: ${response.validationErrors}")
                 textValue = "Error: ${response.message}"
+                sessionState.value = SessionState.FAILURE
             }
         }
     }
@@ -92,6 +103,10 @@ class MainActivityViewModel : ViewModel() {
     fun reset() {
         sessionState.value = null
         textValue = "Submit"
+        cardNumberField = CardNumberField()
+        expiryDateField = ExpiryDateField()
+        cvcField = CvcNumberField(cardNumberField.maxBrandCvcLength)
+        cardholderNameField = DataField(AdditionalDataTypes.CARDHOLDER_NAME)
     }
 
     companion object {

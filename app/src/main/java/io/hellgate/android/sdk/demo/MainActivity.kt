@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -37,55 +38,67 @@ class MainActivity : ComponentActivity() {
                     color = Color(0xffe9f2f4),
                 ) {
 
-                    val sessionState by viewmodel.sessionState.collectAsState(null)
+                    val sessionState by viewmodel.sessionState.collectAsStateWithLifecycle(null)
+                    val loading by viewmodel.loading.collectAsStateWithLifecycle(true)
 
                     Column(
                         verticalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(12.dp),
                     ) {
-
-                        when (sessionState) {
-                            null -> {
-                                Text("Session status: null")
-                                Button(onClick = viewmodel::createNewSession) {
-                                    Text("Create new session")
-                                }
-                            }
-
-                            SessionState.UNKNOWN -> {
-                                Text("Session status: $sessionState")
-                                FetchButton()
-                            }
-
-                            SessionState.REQUIRE_TOKENIZATION -> {
-                                Text("Session status: $sessionState")
-                                CardForm()
-                                StatePrintout()
-                                SubmitButton()
-                            }
-
-                            SessionState.WAITING -> {
-                                Text("Session status: $sessionState")
+                        if (loading) {
+                            Box(modifier = Modifier.padding(top = 20.dp)){
                                 CircularProgressIndicator()
-                                LaunchedEffect(Unit) {
-                                    while (true) {
-                                        debugLog("Session status: $sessionState")
-                                        viewmodel.fetchSessionStatus()
-                                        delay(500)
-                                    }
-                                }
                             }
-
-                            SessionState.COMPLETED, SessionState.FAILURE -> {
-                                Text("Session status: $sessionState")
-                                Text(viewmodel.textValue)
-                                ResetButton()
-                            }
+                        } else {
+                            InputFields(sessionState)
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun InputFields(sessionState: SessionState?) {
+        when (sessionState) {
+            null -> {
+                Text("Session status: null")
+                Button(onClick = viewmodel::createNewSession) {
+                    Text("Create new session")
+                }
+            }
+
+            SessionState.UNKNOWN -> {
+                Text("Session status: $sessionState")
+                FetchButton()
+            }
+
+            SessionState.REQUIRE_TOKENIZATION -> {
+                Text("Session status: $sessionState")
+                CardForm()
+                StatePrintout()
+                SubmitButton()
+            }
+
+            SessionState.WAITING -> {
+                Text("Session status: $sessionState")
+                CircularProgressIndicator()
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        debugLog("Session status: $sessionState")
+                        viewmodel.fetchSessionStatus()
+                        delay(500)
+                    }
+                }
+            }
+
+            SessionState.COMPLETED, SessionState.FAILURE -> {
+                Text("Session status: $sessionState")
+                Text(viewmodel.textValue)
+                ResetButton()
             }
         }
     }
