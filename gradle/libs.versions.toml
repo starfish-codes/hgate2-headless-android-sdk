@@ -54,10 +54,10 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 
+
 nimbus-jose-jwt = { module = "com.nimbusds:nimbus-jose-jwt" , version.ref = "jose-jwt" }
 slf4j-android = { module = "org.slf4j:slf4j-android", version.ref = "slf4j-android" }
 ktor-client-serialization-jackson = { module = "io.ktor:ktor-serialization-jackson", version.ref = "ktor" }
-jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 # Testing
@@ -66,11 +66,12 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest", version.ref = "composeCommonVersion" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4", version.ref = "composeCommonVersion" }
 
-assertj-core = { module = "org.assertj:assertj-core", version.ref = "test-assertj" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "test-assertj" }
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "test-assertk" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "test-coroutines" }
 mockk = { module = "io.mockk:mockk", version.ref = "test-mockk" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j-simple" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "test-robolectric" }
 ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
@@ -96,7 +97,6 @@ ktor-client = [
     "slf4j-android",
     "ktor-client-serialization-jackson",
     "jackson-module-kotlin",
-    "jackson-datatype-jsr310",
 ]
 
 arrow = [

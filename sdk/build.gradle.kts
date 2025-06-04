@@ -142,8 +142,10 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
-    testImplementation(libs.assertj.core)
+    testImplementation(libs.assertj)
+    testImplementation(libs.assertk)
     testImplementation(libs.mockk)
+    testImplementation(libs.ktor.client.mock)
     // org.hamcrest needs to be excluded to avoid conflicts with JUnit4 and Robolectric
     testImplementation(libs.wiremock) { exclude("org.hamcrest") }
     testImplementation(libs.slf4j.simple)
@@ -155,7 +157,7 @@ dependencies {
     testImplementation(libs.ui.test.manifest)
     debugImplementation(libs.androidx.ui.tooling)
 
-    androidTestImplementation(libs.assertj.core)
+    androidTestImplementation(libs.assertj)
     androidTestImplementation(libs.ui.test.junit4)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

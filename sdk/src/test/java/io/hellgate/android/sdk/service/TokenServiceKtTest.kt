@@ -16,11 +16,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
+import java.net.SocketTimeoutException
 
 @RunWith(Enclosed::class)
 class TokenServiceKtTest {
     class Tokenize {
-        private val number = "4242"
+        private val number = "4242424242424242"
         private val sessionId = "abc123"
         private val tokenId = "HG_TOKEN_ID"
         private val jwk = """{"e": "AQAB","kty": "RSA","n": "yv06FFr964RImD0uv4d9b79LHedbR_hdeX8wydUrWcrjgy9q63VBWM3TF1NeSFNGEW2Zcl3vMXTCIqarI5APj2KKpwkRmxS4e9Qs1bXGlyZHAsx6hjPvqa3roYCpXFOCmBDO7TaQjJzWxibAfNyAijWVbsZtsCTPeVXvc2xSvBzSNixO3EVdqXfNGCaCHIV2FZhEM_7PKrERrVMA4H-r6n8tQYr-joqQVEDUC3DdRNV9Lsaf4YHh1Lej0nioQ4lnAOenlg036GNfaZhtdxpYM2LK_V3Tqxut0S48XSJTvwvG3yv3MwN26w7cOk7i6oPcMOeKGlHWvK3_suCcFx_KJQ"}"""
@@ -64,7 +65,7 @@ class TokenServiceKtTest {
                 }
                 val tokenService = tokenService(Constants.HG_URL) { errorMock }
 
-                val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
+                val result = tokenService.tokenize("123", CardData("4242424242424242", "30", "12", "123"), emptyMap())
 
                 assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
                 assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Error123")
@@ -85,7 +86,7 @@ class TokenServiceKtTest {
                 }
                 val tokenService = tokenService(Constants.HG_URL) { invalidMock }
 
-                val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
+                val result = tokenService.tokenize("123", CardData("4242424242424242", "30", "12", "123"), emptyMap())
 
                 assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
                 assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Unexpected Hellgate response, next action is not TOKENIZE_CARD, actual: WAIT")
@@ -107,7 +108,7 @@ class TokenServiceKtTest {
 
                 val tokenService = tokenService(Constants.HG_URL) { nullDataMock }
 
-                val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
+                val result = tokenService.tokenize("123", CardData("4242424242424242", "30", "12", "123"), emptyMap())
 
                 assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
                 assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Session is not in correct state to tokenize card")
@@ -128,10 +129,58 @@ class TokenServiceKtTest {
                 }
                 val tokenService = tokenService(Constants.HG_URL) { nullDataMock }
 
-                val result = tokenService.tokenize(sessionId, CardData("4242", "30", "12", "123"), emptyMap())
+                val result = tokenService.tokenize(sessionId, CardData("4242424242424242", "30", "12", "123"), emptyMap())
 
                 assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
                 assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Unexpected response from Hellgate, tokenization failed or session data is invalid")
+            }
+
+        @Test
+        fun `Process valid data but hellgate will come back with 200 failed invalid_test_card, Return Tokenization failed`() =
+            runTest {
+                val invalidCardMock = object : HgClient {
+                    override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = SessionResponse(guardianData, NextAction.TOKENIZE_CARD, null).right()
+
+                    override suspend fun completeTokenizeCard(
+                        sessionId: String,
+                        encryptedData: String,
+                    ): Either<HttpClientError, SessionResponse> = SessionResponse(SessionResponse.Data.Error("Invalid test card", "invalid_test_card"), null, "failed").right()
+
+                    override fun close() = Unit
+                }
+                val tokenService = tokenService(Constants.HG_URL) { invalidCardMock }
+
+                val result = tokenService.tokenize(sessionId, CardData("4242424242424242", "30", "12", "123"), emptyMap())
+
+                assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
+                assertThat(result).isEqualTo(
+                    TokenizeCardResponse.Failure(
+                        message = "Tokenization failed: Invalid test card, reasonCode: invalid_test_card",
+                        validationErrors = emptyList(),
+                    ),
+                )
+            }
+
+        @Test
+        fun `Process data but hgClient returns timeout error, Returns tokenization failed`() =
+            runTest {
+                val timeoutMock = object : HgClient {
+                    override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = HttpClientError("Timeout", SocketTimeoutException("Timeout reached, 2000ms")).left()
+
+                    override suspend fun completeTokenizeCard(
+                        sessionId: String,
+                        encryptedData: String,
+                    ): Either<HttpClientError, SessionResponse> = TODO("Not needed for this test")
+
+                    override fun close() = Unit
+                }
+                val tokenService = tokenService(Constants.HG_URL) { timeoutMock }
+
+                val result = tokenService.tokenize(sessionId, CardData("4242424242424242", "30", "12", "123"), emptyMap())
+
+                assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
+                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Timeout, exception: Timeout reached, 2000ms")
+                assertThat(result.validationErrors).isEmpty()
             }
     }
 }
