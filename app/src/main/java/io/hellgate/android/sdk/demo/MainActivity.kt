@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.hellgate.android.sdk.SessionState
 import io.hellgate.android.sdk.demo.ui.theme.HellgateAndroidSDKTheme
 import io.hellgate.android.sdk.element.*
@@ -107,7 +109,7 @@ class MainActivity : ComponentActivity() {
             viewmodel.cardNumberField.ComposeUI(
                 onValueChange = {
                     debugLog("$TAG cardnumberState changed to: $it")
-                    viewmodel.cardNumberState = it
+                    viewmodel.cardNumberState.value = it
                 },
                 modifier = Modifier.fillMaxWidth(),
                 onFocused = { debugLog("$TAG cardnumber focused") },
@@ -126,7 +128,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier,
                     onValueChange = {
                         debugLog("$TAG expiryDateState changed to: $it")
-                        viewmodel.expiryDateState = it
+                        viewmodel.expiryDateState.value = it
                     },
                     onFocused = { debugLog("$TAG expiryDate focused") },
                     onBlur = { debugLog("$TAG expiryDate blurred") },
@@ -143,7 +145,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(start = 10.dp),
                     onValueChange = {
                         debugLog("$TAG cvcState changed to: $it")
-                        viewmodel.cvcState = it
+                        viewmodel.cvcState.value = it
                     },
                     onFocused = { debugLog("$TAG cvc focused") },
                     onBlur = { debugLog("$TAG cvc blurred") },
@@ -157,16 +159,19 @@ class MainActivity : ComponentActivity() {
                     ),
                 )
             }
+
+            val cardHolderError by viewmodel.cardholderError.collectAsStateWithLifecycle(LocalLifecycleOwner.current)
+
             viewmodel.cardholderNameField.ComposeUI(
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = {
                     debugLog("$TAG cardholderName changed to: $it")
-                    viewmodel.cardholderError = it.value.contains("ö")
-                    viewmodel.cardholderNameState = it
+                    viewmodel.cardholderError.value = it.value.contains("ö")
+                    viewmodel.cardholderNameState.value = it
                 },
                 onFocused = { debugLog("$TAG cardholderName focused") },
                 onBlur = { debugLog("$TAG cardholderName blurred") },
-                isErrorVisible = viewmodel.cardholderError,
+                isErrorVisible = cardHolderError,
                 shape = RoundedCornerShape(2.dp),
                 colors = TextFieldDefaults.colors(
                     errorTextColor = MaterialTheme.colorScheme.error,
@@ -180,10 +185,14 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun MainActivity.StatePrintout() {
-        Text(text = "${viewmodel.cardNumberState} ${getErrorText(viewmodel.cardNumberState)}")
-        Text(text = "${viewmodel.expiryDateState} ${getErrorText(viewmodel.expiryDateState)}")
-        Text(text = "${viewmodel.cvcState} ${getErrorText(viewmodel.cvcState)}")
+    private fun StatePrintout() {
+        val cardNumberState by viewmodel.cardNumberState.collectAsStateWithLifecycle(LocalLifecycleOwner.current)
+        val expiryDateState by viewmodel.expiryDateState.collectAsStateWithLifecycle(LocalLifecycleOwner.current)
+        val cvcState by viewmodel.cvcState.collectAsStateWithLifecycle(LocalLifecycleOwner.current)
+
+        Text(text = "CardNumberState:\n${getErrorText(cardNumberState)}")
+        Text(text = "ExpiryDateState:\n${getErrorText(expiryDateState)}")
+        Text(text = "CVCState: \n${getErrorText(cvcState)}")
     }
 
     @Composable

@@ -19,19 +19,20 @@ import kotlinx.coroutines.launch
 class MainActivityViewModel : ViewModel() {
 
     val cardNumberField = CardNumberField()
-    var cardNumberState by mutableStateOf(FieldState())
+    val cardNumberState = MutableStateFlow(FieldState())
     val expiryDateField = ExpiryDateField()
-    var expiryDateState by mutableStateOf(FieldState())
+    val expiryDateState = MutableStateFlow(FieldState())
     val cvcField = CvcNumberField(cardNumberField.maxBrandCvcLength)
-    var cvcState by mutableStateOf(FieldState())
+    val cvcState = MutableStateFlow(FieldState())
     val cardholderNameField = DataField(AdditionalDataTypes.CARDHOLDER_NAME)
-    var cardholderError by mutableStateOf(false)
-    var cardholderNameState by mutableStateOf(AdditionalDataFieldState())
+    val cardholderError = MutableStateFlow(false)
+    val cardholderNameState = MutableStateFlow(AdditionalDataFieldState())
 
     var textValue by mutableStateOf("Submit")
     private lateinit var hellgate: Hellgate
 
     val sessionState = MutableStateFlow<SessionState?>(null)
+    val loading = MutableStateFlow(false)
 
     // TODO Implement loading state management
     // val loading = true to null
@@ -62,10 +63,10 @@ class MainActivityViewModel : ViewModel() {
                         cardNumberField,
                         cvcField,
                         expiryDateField,
-                        if (cardholderNameState.empty) emptyList() else listOf(cardholderNameField),
+                        if (cardholderNameState.value.empty) emptyList() else listOf(cardholderNameField),
                     )
 
-                    printResponse(response)
+                    handleResponse(response)
                     textValue = response.toString()
                     fetchSessionStatus()
                 },
@@ -74,7 +75,7 @@ class MainActivityViewModel : ViewModel() {
         }
     }
 
-    fun printResponse(response: TokenizeCardResponse) {
+    private fun handleResponse(response: TokenizeCardResponse) {
         when (response) {
             is TokenizeCardResponse.Success -> {
                 debugLog("$TAG Tokenization successful, token ID: ${response.id}")
