@@ -198,38 +198,40 @@ tasks {
     task<Exec>("uploadToMavenCentral") {
         group = "publishing"
 
-        val folder = layout.buildDirectory.dir("mavenCentral").get().asFile
-        val zipFile = folder.listFiles { _, name -> name.startsWith("android") }
-            ?.first()
-        val absolutePath = zipFile?.absolutePath.orEmpty()
-        val uploadName = zipFile?.nameWithoutExtension.orEmpty()
-        val token = project.findProperty("maven.central.token") as? String ?: ""
-
-        val command = listOf(
-            "curl",
-            "--location", "https://central.sonatype.com/api/v1/publisher/upload?name=$uploadName&publishingType=USER_MANAGED",
-            "--header", "Authorization:Bearer $token",
-            "--form", "bundle=@$absolutePath",
-        )
-
-        commandLine = command
-
-        doLast {
-            println("Upload to Maven Central completed successfully.")
-        }
         doFirst {
+            val folder = layout.buildDirectory.dir("mavenCentral").get().asFile
+            val zipFile = folder.listFiles { _, name -> name.startsWith("android") }
+                ?.firstOrNull { it.extension == "zip" }
+            val absolutePath = zipFile?.absolutePath.orEmpty()
+            val uploadName = zipFile?.nameWithoutExtension.orEmpty()
+            val token = project.findProperty("maven.central.token") as? String ?: ""
+
             if (zipFile == null) {
                 throw GradleException("No zip file found in staging deploy directory")
             }
             println("Uploading $zipFile to Maven Central")
+
+            val command = listOf(
+                "curl",
+                "--location", "https://central.sonatype.com/api/v1/publisher/upload?name=$uploadName&publishingType=USER_MANAGED",
+                "--header", "Authorization:Bearer $token",
+                "--form", "bundle=@$absolutePath",
+            )
+
+            commandLine(command)
         }
+        doLast {
+            println("Upload to Maven Central completed successfully.")
+        }
+
     }
 
-    task("publishMavenCentral") {
+    register("publishToMavenCentral") {
         group = "publishing"
-        dependsOn("clean", "createReleaseZip", "uploadToMavenCentral")
+        dependsOn("clean", "preBuild", "createReleaseZip", "uploadToMavenCentral")
+
         getByName("preBuild").mustRunAfter("clean")
-        getByName("createReleaseZip").mustRunAfter("clean")
+        getByName("createReleaseZip").mustRunAfter("preBuild")
         getByName("uploadToMavenCentral").mustRunAfter("createReleaseZip")
     }
 }
