@@ -10,6 +10,6 @@ internal data class TokenizationError(
         fun fromErrorResponse(
             reason: String,
             reasonCode: String?,
-        ) = UnexpectedHellgateResponse("Tokenization error: $reason" + if (reasonCode != null) ", reasonCode: $reasonCode" else "")
+        ) = TokenizationError("Tokenization failed: $reason" + if (reasonCode != null) ", reasonCode: $reasonCode" else "")
     }
 }

@@ -8,6 +8,9 @@ import io.hellgate.android.sdk.testutil.*
 import io.hellgate.android.sdk.testutil.assertLeft
 import io.hellgate.android.sdk.testutil.assertRight
 import io.hellgate.android.sdk.util.jsonDeserialize
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.test.*
 import org.assertj.core.api.Assertions.assertThat
@@ -48,6 +51,24 @@ class HttpClientKtTest : WiremockTest() {
                         null,
                     ),
                 )
+            }
+        }
+
+    @Test
+    fun `Simulate timeout exception, returns left HttpClientError`() =
+        runTest {
+            val client = HttpClient(MockEngine) {
+                engine {
+                    addHandler { throw SocketTimeoutException("Timeout") }
+                }
+            }
+            client.eitherRequest<SessionResponse, Unit>(
+                HttpMethod.Get,
+                baseUrl,
+                listOf("sessionId", "123"),
+            ).assertLeft {
+                assertThat(it).isInstanceOf(HttpClientError::class.java)
+                assertThat(it.message).contains("Timeout")
             }
         }
 }
