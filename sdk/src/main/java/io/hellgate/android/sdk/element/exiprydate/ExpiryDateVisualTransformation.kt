@@ -35,9 +35,7 @@ internal class ExpiryDateVisualTransformation : VisualTransformation {
         val separatorIndices = calculateSeparatorOffsets(output)
 
         val offsetTranslator = object : OffsetMapping {
-            override fun originalToTransformed(offset: Int): Int {
-                return outputOffsets[offset]
-            }
+            override fun originalToTransformed(offset: Int): Int = outputOffsets[offset]
 
             override fun transformedToOriginal(offset: Int): Int {
                 val separatorCharactersBeforeOffset = separatorIndices.count { it < offset }
@@ -60,9 +58,8 @@ internal class ExpiryDateVisualTransformation : VisualTransformation {
         return listOf(0) + digitOffsets.dropLast(1) + output.length
     }
 
-    private fun calculateSeparatorOffsets(output: String): List<Int> {
-        return output.mapIndexedNotNull { index, c ->
+    private fun calculateSeparatorOffsets(output: String): List<Int> =
+        output.mapIndexedNotNull { index, c ->
             index.takeUnless { c.isDigit() }
         }
-    }
 }

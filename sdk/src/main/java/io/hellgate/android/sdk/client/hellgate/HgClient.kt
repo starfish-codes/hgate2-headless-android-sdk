@@ -5,8 +5,6 @@ import io.hellgate.android.sdk.client.*
 import io.hellgate.android.sdk.client.hellgate.Segments.COMPLETE_ACTION
 import io.hellgate.android.sdk.client.hellgate.Segments.SESSIONS
 import io.hellgate.android.sdk.client.hellgate.SessionCompleteTokenizeCard.*
-import io.hellgate.android.sdk.client.hellgate.SessionCompleteTokenizeCard.AdditionalData.Companion.toDTO
-import io.hellgate.android.sdk.element.additionaldata.AdditionalDataTypes
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpMethod
 import java.io.Closeable
@@ -21,8 +19,7 @@ internal interface HgClient : Closeable {
 
     suspend fun completeTokenizeCard(
         sessionId: String,
-        tokenId: String,
-        additionalData: Map<AdditionalDataTypes, String>,
+        encryptedData: String,
     ): Either<HttpClientError, SessionResponse>
 }
 
@@ -43,18 +40,14 @@ internal fun hgClient(
 
     override suspend fun completeTokenizeCard(
         sessionId: String,
-        tokenId: String,
-        additionalData: Map<AdditionalDataTypes, String>,
+        encryptedData: String,
     ): Either<HttpClientError, SessionResponse> =
         client.eitherRequest<SessionResponse, SessionCompleteTokenizeCard>(
             HttpMethod.Post,
             baseUrl,
             listOf(SESSIONS, sessionId, COMPLETE_ACTION),
             body = SessionCompleteTokenizeCard(
-                result = Result(
-                    tokenId,
-                    if (additionalData.isEmpty()) null else additionalData.toDTO(),
-                ),
+                result = Result(encryptedData),
             ),
         )
 }

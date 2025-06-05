@@ -2,7 +2,6 @@ package io.hellgate.android.sdk.demo.client
 
 import arrow.core.Either
 import io.hellgate.android.sdk.demo.BuildConfig
-import io.hellgate.android.sdk.demo.HELLGATE_BASE_URL
 import io.hellgate.android.sdk.demo.client.Segments.SESSION
 import io.hellgate.android.sdk.demo.client.Segments.TOKENS
 import io.ktor.client.HttpClient
@@ -20,7 +19,7 @@ interface HgBackendClient : Closeable {
 }
 
 fun hgBackendClient(
-    baseUrl: String = HELLGATE_BASE_URL,
+    baseUrl: String = BuildConfig.HG_BACKEND_API_URL,
     client: HttpClient = httpClient(),
     apiKey: String = BuildConfig.HG_BACKEND_API_KEY
 ) = object : HgBackendClient {

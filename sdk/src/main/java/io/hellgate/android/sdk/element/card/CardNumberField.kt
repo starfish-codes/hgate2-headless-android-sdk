@@ -7,9 +7,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import io.hellgate.android.sdk.R
 import io.hellgate.android.sdk.element.*
 import io.hellgate.android.sdk.element.FieldDefaults.keyboardOptions
@@ -23,7 +23,9 @@ import kotlinx.coroutines.launch
  * A composable representing a card number field.
  * @param fieldLabel The label to be displayed on the field. Default is "Card Number". Provide a custom label / i18n if needed.
  */
-class CardNumberField(private val fieldLabel: String = LABEL) {
+class CardNumberField(
+    private val fieldLabel: String = LABEL,
+) {
     private val controller = CardNumberFieldController()
 
     val maxBrandCvcLength: Flow<Int> = controller.impliedCardBrand.map { it.maxCvcLength }

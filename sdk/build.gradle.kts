@@ -1,9 +1,9 @@
 import com.adarshr.gradle.testlogger.theme.ThemeType
-import java.io.ByteArrayOutputStream
 
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.compose.compiler)
     id("maven-publish")
     id("signing")
 
@@ -17,7 +17,7 @@ plugins {
 android {
     group = "io.hellgate"
     namespace = "$group.android.sdk"
-    compileSdk = 34
+    compileSdk = 36
 
     val currentVersion: String by project
     version = currentVersion.drop(1)
@@ -35,9 +35,6 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.5"
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -141,10 +138,14 @@ dependencies {
     implementation(libs.bundles.ktor.client)
     implementation(libs.ktor.client.logging)
 
+    implementation(libs.nimbus.jose.jwt)
+
     // Testing
     testImplementation(libs.junit)
-    testImplementation(libs.assertj.core)
+    testImplementation(libs.assertj)
+    testImplementation(libs.assertk)
     testImplementation(libs.mockk)
+    testImplementation(libs.ktor.client.mock)
     // org.hamcrest needs to be excluded to avoid conflicts with JUnit4 and Robolectric
     testImplementation(libs.wiremock) { exclude("org.hamcrest") }
     testImplementation(libs.slf4j.simple)
@@ -152,9 +153,11 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
     testImplementation(libs.ui.test.junit4)
-    debugImplementation(libs.ui.test.manifest)
 
-    androidTestImplementation(libs.assertj.core)
+    testImplementation(libs.ui.test.manifest)
+    debugImplementation(libs.androidx.ui.tooling)
+
+    androidTestImplementation(libs.assertj)
     androidTestImplementation(libs.ui.test.junit4)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -170,15 +173,7 @@ testlogger {
     theme = ThemeType.MOCHA
 }
 
-koverReport {
-    androidReports("debug") {}
-    defaults {
-        mergeWith("debug")
-    }
-}
-
 tasks {
-
     task("lintDetekt") {
         group = "verification"
         dependsOn("lintKotlin")
@@ -200,38 +195,43 @@ tasks {
         from(layout.buildDirectory.dir("staging-deploy").get().asFile)
     }
 
-    task("uploadToMavenCentral") {
+    task<Exec>("uploadToMavenCentral") {
         group = "publishing"
 
-        doLast {
+        doFirst {
             val folder = layout.buildDirectory.dir("mavenCentral").get().asFile
             val zipFile = folder.listFiles { _, name -> name.startsWith("android") }
-                ?.first()
+                ?.firstOrNull { it.extension == "zip" }
             val absolutePath = zipFile?.absolutePath.orEmpty()
             val uploadName = zipFile?.nameWithoutExtension.orEmpty()
+            val token = project.findProperty("maven.central.token") as? String ?: ""
+
+            if (zipFile == null) {
+                throw GradleException("No zip file found in staging deploy directory")
+            }
+            println("Uploading $zipFile to Maven Central")
 
             val command = listOf(
                 "curl",
                 "--location", "https://central.sonatype.com/api/v1/publisher/upload?name=$uploadName&publishingType=USER_MANAGED",
-                "--header", "Authorization:Bearer ${project.properties["maven.central.token"]}",
+                "--header", "Authorization:Bearer $token",
                 "--form", "bundle=@$absolutePath",
             )
 
-            val output = ByteArrayOutputStream()
-            println("Uploading $zipFile to Maven Central")
-            exec {
-                commandLine = command
-                standardOutput = output
-            }
-            println("Deployment created with id: $output")
+            commandLine(command)
         }
+        doLast {
+            println("Upload to Maven Central completed successfully.")
+        }
+
     }
 
-    task("publishMavenCentral") {
+    register("publishToMavenCentral") {
         group = "publishing"
-        dependsOn("clean", "createReleaseZip", "uploadToMavenCentral")
+        dependsOn("clean", "preBuild", "createReleaseZip", "uploadToMavenCentral")
+
         getByName("preBuild").mustRunAfter("clean")
-        getByName("createReleaseZip").mustRunAfter("clean")
+        getByName("createReleaseZip").mustRunAfter("preBuild")
         getByName("uploadToMavenCentral").mustRunAfter("createReleaseZip")
     }
 }
