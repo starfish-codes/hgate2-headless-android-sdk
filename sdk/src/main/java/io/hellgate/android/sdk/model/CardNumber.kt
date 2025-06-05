@@ -17,8 +17,8 @@ internal sealed class CardNumber {
 
         private val isValidLuhn = CardUtils.isValidLuhnNumber(normalized)
 
-        fun validate(panLength: Int): Validated? {
-            return if (panLength >= MIN_PAN_LENGTH &&
+        fun validate(panLength: Int): Validated? =
+            if (panLength >= MIN_PAN_LENGTH &&
                 normalized.length == panLength &&
                 isValidLuhn
             ) {
@@ -28,7 +28,6 @@ internal sealed class CardNumber {
             } else {
                 null
             }
-        }
 
         /**
          * Format a number based on its expected length
@@ -75,10 +74,9 @@ internal sealed class CardNumber {
 
         fun isPartialEntry(panLength: Int) = (normalized.length != panLength) && normalized.isNotBlank()
 
-        fun isPossibleCardBrand(): Boolean {
-            return normalized.isNotBlank() &&
+        fun isPossibleCardBrand(): Boolean =
+            normalized.isNotBlank() &&
                 CardBrand.getCardBrands(normalized).first() != CardBrand.Unknown
-        }
 
         private companion object {
             // characters to remove from a denormalized number to make it normalized

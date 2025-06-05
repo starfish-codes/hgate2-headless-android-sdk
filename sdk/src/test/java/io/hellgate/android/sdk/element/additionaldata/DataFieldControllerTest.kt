@@ -12,41 +12,44 @@ import org.junit.runner.RunWith
 class DataFieldControllerTest {
     class FieldValue {
         @Test
-        fun `Input values into textField, Returns correct value`() = runTest {
-            val controller = DataFieldController()
+        fun `Input values into textField, Returns correct value`() =
+            runTest {
+                val controller = DataFieldController()
 
-            controller.onValueChanged("John Doe")
-            val value = controller.fieldValue.first()
-            assertThat(value).isEqualTo("John Doe")
-        }
+                controller.onValueChanged("John Doe")
+                val value = controller.fieldValue.first()
+                assertThat(value).isEqualTo("John Doe")
+            }
     }
 
     class FieldStateTest {
         @Test
-        fun `Input values into textField, Returns correct state`() = runTest {
-            val controller = DataFieldController()
+        fun `Input values into textField, Returns correct state`() =
+            runTest {
+                val controller = DataFieldController()
 
-            controller.onValueChanged("John Doe")
-            val state = controller.fieldState.first()
-            assertThat(state).isEqualTo(AdditionalDataFieldState(empty = false, value = "John Doe"))
-        }
+                controller.onValueChanged("John Doe")
+                val state = controller.fieldState.first()
+                assertThat(state).isEqualTo(AdditionalDataFieldState(empty = false, value = "John Doe"))
+            }
 
         @Test
-        fun `Empty input, Returns empty state`() = runTest {
-            val controller = DataFieldController()
+        fun `Empty input, Returns empty state`() =
+            runTest {
+                val controller = DataFieldController()
 
-            controller.onValueChanged("")
-            val state = controller.fieldState.first()
-            assertThat(state).isEqualTo(AdditionalDataFieldState(empty = true, value = ""))
+                controller.onValueChanged("")
+                val state = controller.fieldState.first()
+                assertThat(state).isEqualTo(AdditionalDataFieldState(empty = true, value = ""))
 
-            controller.onValueChanged("J")
-            val state1 = controller.fieldState.first()
-            assertThat(state1).isEqualTo(AdditionalDataFieldState(empty = false, value = "J"))
+                controller.onValueChanged("J")
+                val state1 = controller.fieldState.first()
+                assertThat(state1).isEqualTo(AdditionalDataFieldState(empty = false, value = "J"))
 
-            controller.onValueChanged("")
-            val state2 = controller.fieldState.first()
-            assertThat(state2).isEqualTo(AdditionalDataFieldState(empty = true, value = ""))
-        }
+                controller.onValueChanged("")
+                val state2 = controller.fieldState.first()
+                assertThat(state2).isEqualTo(AdditionalDataFieldState(empty = true, value = ""))
+            }
     }
 
     @Test

@@ -12,8 +12,9 @@ import io.hellgate.android.sdk.element.additionaldata.DataField
 import io.hellgate.android.sdk.element.card.CardNumberField
 import io.hellgate.android.sdk.element.cvc.CvcNumberField
 import io.hellgate.android.sdk.element.exiprydate.ExpiryDateField
+import io.hellgate.android.sdk.model.TokenizeCardResponse
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class MainActivityViewModel : ViewModel() {
 
@@ -30,46 +31,65 @@ class MainActivityViewModel : ViewModel() {
     var textValue by mutableStateOf("Submit")
     private lateinit var hellgate: Hellgate
 
-    var sessionState by mutableStateOf<SessionState?>(null)
+    val sessionState = MutableStateFlow<SessionState?>(null)
+
+    // TODO Implement loading state management
+    // val loading = true to null
+    // fun doneLoading(state: SessionState) {
+    //     sessionState.value = false to state
+    // }
 
     fun createNewSession() {
         viewModelScope.launch {
             val sessionId: String = hgBackendClient().createSession().getOrNull()?.sessionId.orEmpty()
-            sessionState = SessionState.UNKNOWN
+            sessionState.value = SessionState.UNKNOWN
             hellgate = initHellgate(sessionId, BuildConfig.HG_BACKEND_API_URL)
         }
     }
 
     fun fetchSessionStatus() {
         viewModelScope.launch {
-            val sessionStatus = hellgate.fetchSessionStatus()
-            sessionState = sessionStatus
+            sessionState.value = hellgate.fetchSessionStatus()
         }
     }
 
     fun submit() {
         viewModelScope.launch {
-            val cardHandler = hellgate.cardHandler().fold(
+            hellgate.cardHandler().fold(
                 onSuccess = {
-                    val hgToken = it.tokenizeCard(
+                    debugLog("$TAG Success, cardHandler created")
+                    val response = it.tokenizeCard(
                         cardNumberField,
                         cvcField,
                         expiryDateField,
                         if (cardholderNameState.empty) emptyList() else listOf(cardholderNameField),
                     )
 
-                    debugLog("$TAG cardHandler response: $hgToken")
-                    textValue = hgToken.toString()
+                    printResponse(response)
+                    textValue = response.toString()
                     fetchSessionStatus()
                 },
-                onFailure = { debugLog(it.message.toString()) },
+                onFailure = { debugLog("$TAG Failure, cardHandler not created: " + it.message.toString()) },
             )
-            debugLog("$TAG cardHandler response: $cardHandler")
+        }
+    }
+
+    fun printResponse(response: TokenizeCardResponse) {
+        when (response) {
+            is TokenizeCardResponse.Success -> {
+                debugLog("$TAG Tokenization successful, token ID: ${response.id}")
+                textValue = "Token ID: ${response.id}"
+            }
+
+            is TokenizeCardResponse.Failure -> {
+                debugLog("$TAG Tokenization failed: ${response.message}, Validation Errors: ${response.validationErrors}")
+                textValue = "Error: ${response.message}"
+            }
         }
     }
 
     fun reset() {
-        sessionState = null
+        sessionState.value = null
         textValue = "Submit"
     }
 

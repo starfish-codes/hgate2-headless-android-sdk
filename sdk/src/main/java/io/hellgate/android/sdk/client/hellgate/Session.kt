@@ -2,7 +2,6 @@ package io.hellgate.android.sdk.client.hellgate
 
 import com.fasterxml.jackson.annotation.*
 import com.fasterxml.jackson.databind.JsonNode
-import io.hellgate.android.sdk.element.additionaldata.AdditionalDataTypes
 
 internal data class SessionResponse(
     val data: Data?,
@@ -13,12 +12,20 @@ internal data class SessionResponse(
     @JsonSubTypes(
         JsonSubTypes.Type(value = Data.TokenId::class),
         JsonSubTypes.Type(value = Data.TokenizationParam::class),
+        JsonSubTypes.Type(value = Data.Error::class),
     )
     sealed class Data {
-        data class TokenId(val tokenId: String) : Data()
+        data class TokenId(
+            val tokenId: String,
+        ) : Data()
 
         data class TokenizationParam(
             val jwk: JsonNode,
+        ) : Data()
+
+        data class Error(
+            val reason: String,
+            val reasonCode: String,
         ) : Data()
     }
 }
@@ -37,15 +44,5 @@ internal data class SessionCompleteTokenizeCard(
 ) {
     data class Result(
         val encPayload: String,
-        val additionalData: AdditionalData?,
     )
-
-    data class AdditionalData(
-        @JsonProperty("cardholder_name")
-        val cardholderName: String?,
-    ) {
-        companion object {
-            fun Map<AdditionalDataTypes, String>.toDTO() = AdditionalData(this[AdditionalDataTypes.CARDHOLDER_NAME])
-        }
-    }
 }

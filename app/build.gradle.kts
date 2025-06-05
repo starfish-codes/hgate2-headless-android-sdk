@@ -6,14 +6,14 @@ plugins {
 
 android {
     namespace = "io.hellgate.android.sdk.demo"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.hellgate.android.sdk.demo"
         minSdk = 28
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 36
+        versionCode = 2
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -54,7 +54,7 @@ android {
 
 dependencies {
     implementation(project(":sdk"))
-//    implementation("io.hellgate:android-sdk:1.0.0")
+//    implementation("io.hellgate:android-sdk:1.1.0")
 
     implementation(libs.bundles.arrow)
     implementation(libs.bundles.ktor.client)

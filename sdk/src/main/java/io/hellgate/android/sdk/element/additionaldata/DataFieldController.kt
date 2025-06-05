@@ -13,10 +13,9 @@ internal class DataFieldController {
         _fieldValue.value = value
     }
 
-    internal fun determineState(value: String): AdditionalDataFieldState {
-        return AdditionalDataFieldState(
+    internal fun determineState(value: String): AdditionalDataFieldState =
+        AdditionalDataFieldState(
             empty = value.isEmpty(),
             value = value,
         )
-    }
 }

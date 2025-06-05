@@ -15,37 +15,39 @@ import org.junit.Test
 
 class HttpClientKtTest : WiremockTest() {
     @Test
-    fun `Call Wiremock for a sessionId but receive 401, Returns correct status and client error`() = runTest {
-        val client = simpleLoggerClient()
-        wiremock.mockPostRequest("/sessionId", "", 401)
+    fun `Call Wiremock for a sessionId but receive 401, Returns correct status and client error`() =
+        runTest {
+            val client = simpleLoggerClient()
+            wiremock.mockPostRequest("/sessionId", "", 401)
 
-        client.eitherRequest<SessionResponse, String>(
-            HttpMethod.Post,
-            baseUrl,
-            listOf("sessionId"),
-            "test123",
-        ).assertLeft {
-            assertThat(it).isEqualTo(HttpClientError("401 Unauthorized : Empty body", null))
+            client.eitherRequest<SessionResponse, String>(
+                HttpMethod.Post,
+                baseUrl,
+                listOf("sessionId"),
+                "test123",
+            ).assertLeft {
+                assertThat(it).isEqualTo(HttpClientError("401 Unauthorized : Empty body", null))
+            }
         }
-    }
 
     @Test
-    fun `CallHellgate for a sessionId, Returns correct type with session id`() = runTest {
-        val client = simpleLoggerClient()
-        wiremock.mockGetRequest("/sessionId/123", TOKENIZE_CARD_RESPONSE, 200)
+    fun `CallHellgate for a sessionId, Returns correct type with session id`() =
+        runTest {
+            val client = simpleLoggerClient()
+            wiremock.mockGetRequest("/sessionId/123", TOKENIZE_CARD_RESPONSE, 200)
 
-        client.eitherRequest<SessionResponse, Unit>(
-            HttpMethod.Get,
-            baseUrl,
-            listOf("sessionId", "123"),
-        ).assertRight {
-            assertThat(it).isEqualTo(
-                SessionResponse(
-                    SessionResponse.Data.TokenizationParam(JWK.jsonDeserialize()),
-                    NextAction.TOKENIZE_CARD,
-                    null,
-                ),
-            )
+            client.eitherRequest<SessionResponse, Unit>(
+                HttpMethod.Get,
+                baseUrl,
+                listOf("sessionId", "123"),
+            ).assertRight {
+                assertThat(it).isEqualTo(
+                    SessionResponse(
+                        SessionResponse.Data.TokenizationParam(JWK.jsonDeserialize()),
+                        NextAction.TOKENIZE_CARD,
+                        null,
+                    ),
+                )
+            }
         }
-    }
 }

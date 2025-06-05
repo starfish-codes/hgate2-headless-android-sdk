@@ -8,7 +8,6 @@ import io.hellgate.android.sdk.Constants
 import io.hellgate.android.sdk.client.HttpClientError
 import io.hellgate.android.sdk.client.hellgate.*
 import io.hellgate.android.sdk.client.hellgate.NextAction
-import io.hellgate.android.sdk.element.additionaldata.AdditionalDataTypes
 import io.hellgate.android.sdk.model.CardData
 import io.hellgate.android.sdk.model.TokenizeCardResponse
 import io.hellgate.android.sdk.util.jsonDeserialize
@@ -31,113 +30,108 @@ class TokenServiceKtTest {
         private val guardianData = SessionResponse.Data.TokenizationParam(jwk)
 
         @Test
-        fun `Process valid input for a hg-token-session, Returns Success`() = runTest {
-            val successMock = object : HgClient {
-                override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = SessionResponse(guardianData, NextAction.TOKENIZE_CARD, null).right()
+        fun `Process valid input for a hg-token-session, Returns Success`() =
+            runTest {
+                val successMock = object : HgClient {
+                    override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = SessionResponse(guardianData, NextAction.TOKENIZE_CARD, null).right()
 
-                override suspend fun completeTokenizeCard(
-                    sessionId: String,
-                    encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
-                ): Either<HttpClientError, SessionResponse> = SessionResponse(SessionResponse.Data.TokenId(tokenId), null, "success").right()
+                    override suspend fun completeTokenizeCard(
+                        sessionId: String,
+                        encryptedData: String,
+                    ): Either<HttpClientError, SessionResponse> = SessionResponse(SessionResponse.Data.TokenId(tokenId), null, "success").right()
 
-                override fun close() = Unit
+                    override fun close() = Unit
+                }
+                val tokenService = tokenService(Constants.HG_URL) { successMock }
+                val result = tokenService.tokenize(sessionId, CardData(number, "30", "12", "123"), emptyMap())
+
+                assertThat(result).isInstanceOf(TokenizeCardResponse.Success::class.java)
+                assertThat((result as TokenizeCardResponse.Success).id).isEqualTo("HG_TOKEN_ID")
             }
-            val tokenService = tokenService(Constants.HG_URL) { successMock }
-            val result = tokenService.tokenize(sessionId, CardData(number, "30", "12", "123"), emptyMap())
-
-            assertThat(result).isInstanceOf(TokenizeCardResponse.Success::class.java)
-            assertThat((result as TokenizeCardResponse.Success).id).isEqualTo("HG_TOKEN_ID")
-        }
 
         @Test
-        fun `Process invalid inputs, Returns ResponseFailure`() = runTest {
-            val errorMock = object : HgClient {
-                override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = HttpClientError("Error$sessionId").left()
+        fun `Process invalid inputs, Returns ResponseFailure`() =
+            runTest {
+                val errorMock = object : HgClient {
+                    override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = HttpClientError("Error$sessionId").left()
 
-                override suspend fun completeTokenizeCard(
-                    sessionId: String,
-                    encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
-                ): Either<HttpClientError, SessionResponse> = HttpClientError("Error").left()
+                    override suspend fun completeTokenizeCard(
+                        sessionId: String,
+                        encryptedData: String,
+                    ): Either<HttpClientError, SessionResponse> = HttpClientError("Error").left()
 
-                override fun close() = Unit
+                    override fun close() = Unit
+                }
+                val tokenService = tokenService(Constants.HG_URL) { errorMock }
+
+                val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
+
+                assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
+                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Error123")
             }
-            val tokenService = tokenService(Constants.HG_URL) { errorMock }
-
-            val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
-
-            assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
-            assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Error123")
-        }
 
         @Test
-        fun `Process valid data but session returns invalid state, Return Tokenization failed no mockk`() = runTest {
-            val invalidMock = object : HgClient {
-                override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = invalidSessionResponse.right()
+        fun `Process valid data but session returns invalid state, Return Tokenization failed no mockk`() =
+            runTest {
+                val invalidMock = object : HgClient {
+                    override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = invalidSessionResponse.right()
 
-                override suspend fun completeTokenizeCard(
-                    sessionId: String,
-                    encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
-                ): Either<HttpClientError, SessionResponse> =
-                    HttpClientError("Error").left()
+                    override suspend fun completeTokenizeCard(
+                        sessionId: String,
+                        encryptedData: String,
+                    ): Either<HttpClientError, SessionResponse> = HttpClientError("Error").left()
 
-                override fun close() = Unit
+                    override fun close() = Unit
+                }
+                val tokenService = tokenService(Constants.HG_URL) { invalidMock }
+
+                val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
+
+                assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
+                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Unexpected Hellgate response, next action is not TOKENIZE_CARD, actual: WAIT")
             }
-            val tokenService = tokenService(Constants.HG_URL) { invalidMock }
-
-            val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
-
-            assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
-            assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Tokenization failed")
-        }
 
         @Test
-        fun `Process valid data but session data is null, Return Tokenization failed`() = runTest {
-            val nullDAtaMock = object : HgClient {
-                override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> =
-                    SessionResponse(null, NextAction.TOKENIZE_CARD, null).right()
+        fun `Process valid data but session data is null, Return Tokenization failed`() =
+            runTest {
+                val nullDataMock = object : HgClient {
+                    override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = SessionResponse(null, NextAction.TOKENIZE_CARD, null).right()
 
-                override suspend fun completeTokenizeCard(
-                    sessionId: String,
-                    encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
-                ): Either<HttpClientError, SessionResponse> =
-                    HttpClientError("Error").left()
+                    override suspend fun completeTokenizeCard(
+                        sessionId: String,
+                        encryptedData: String,
+                    ): Either<HttpClientError, SessionResponse> = HttpClientError("Error").left()
 
-                override fun close() = Unit
+                    override fun close() = Unit
+                }
+
+                val tokenService = tokenService(Constants.HG_URL) { nullDataMock }
+
+                val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
+
+                assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
+                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Session is not in correct state to tokenize card")
             }
-
-            val tokenService = tokenService(Constants.HG_URL) { nullDAtaMock }
-
-            val result = tokenService.tokenize("123", CardData("4242", "30", "12", "123"), emptyMap())
-
-            assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
-            assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Tokenization failed")
-        }
 
         @Test
-        fun `Process valid data but completeTokenization data is null, Return Tokenization failed`() = runTest {
-            val nullDataMock = object : HgClient {
-                override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> =
-                    SessionResponse(guardianData, NextAction.TOKENIZE_CARD, null).right()
+        fun `Process valid data but completeTokenization data is null, Return Tokenization failed`() =
+            runTest {
+                val nullDataMock = object : HgClient {
+                    override suspend fun fetchSession(sessionId: String): Either<HttpClientError, SessionResponse> = SessionResponse(guardianData, NextAction.TOKENIZE_CARD, null).right()
 
-                override suspend fun completeTokenizeCard(
-                    sessionId: String,
-                    encryptedData: String,
-                    additionalData: Map<AdditionalDataTypes, String>,
-                ): Either<HttpClientError, SessionResponse> =
-                    SessionResponse(null, null, "success").right()
+                    override suspend fun completeTokenizeCard(
+                        sessionId: String,
+                        encryptedData: String,
+                    ): Either<HttpClientError, SessionResponse> = SessionResponse(null, null, "success").right()
 
-                override fun close() = Unit
+                    override fun close() = Unit
+                }
+                val tokenService = tokenService(Constants.HG_URL) { nullDataMock }
+
+                val result = tokenService.tokenize(sessionId, CardData("4242", "30", "12", "123"), emptyMap())
+
+                assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
+                assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Unexpected response from Hellgate, tokenization failed or session data is invalid")
             }
-            val tokenService = tokenService(Constants.HG_URL) { nullDataMock }
-
-            val result = tokenService.tokenize(sessionId, CardData("4242", "30", "12", "123"), emptyMap())
-
-            assertThat(result).isInstanceOf(TokenizeCardResponse.Failure::class.java)
-            assertThat((result as TokenizeCardResponse.Failure).message).isEqualTo("Tokenization failed")
-        }
     }
 }

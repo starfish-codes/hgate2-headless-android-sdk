@@ -186,14 +186,12 @@ internal enum class CardBrand(
      * @param cardNumber the card number with no spaces or dashes
      * @return `true` if the card number is the correct length for the assumed brand
      */
-    fun isValidCardNumberLength(cardNumber: String?): Boolean {
-        return cardNumber != null && Unknown != this &&
+    fun isValidCardNumberLength(cardNumber: String?): Boolean =
+        cardNumber != null &&
+            Unknown != this &&
             cardNumber.length == getMaxLengthForCardNumber(cardNumber)
-    }
 
-    fun isValidCvc(cvc: String): Boolean {
-        return cvcLength.contains(cvc.length)
-    }
+    fun isValidCvc(cvc: String): Boolean = cvcLength.contains(cvc.length)
 
     fun isMaxCvc(cvcText: String?): Boolean {
         val cvcLength = cvcText?.trim()?.length ?: 0
@@ -213,9 +211,7 @@ internal enum class CardBrand(
         }?.value ?: defaultMaxLength
     }
 
-    private fun getPatternForLength(cardNumber: String): Pattern? {
-        return partialPatterns[cardNumber.length] ?: pattern
-    }
+    private fun getPatternForLength(cardNumber: String): Pattern? = partialPatterns[cardNumber.length] ?: pattern
 
     companion object {
         /**

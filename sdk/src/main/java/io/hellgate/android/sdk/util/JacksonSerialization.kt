@@ -1,25 +1,22 @@
 package io.hellgate.android.sdk.util
 
 import arrow.core.Either
-import arrow.core.raise.*
-import com.ethlo.time.ITU
+import arrow.core.raise.catch
+import arrow.core.raise.either
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.core.util.DefaultIndenter
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
-import com.fasterxml.jackson.databind.*
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.json.JsonMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.*
+import com.fasterxml.jackson.module.kotlin.jsonMapper
+import com.fasterxml.jackson.module.kotlin.kotlinModule
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.hellgate.android.sdk.model.Problem
-import io.ktor.http.*
-import io.ktor.serialization.*
-import io.ktor.serialization.jackson.*
-import java.io.IOException
-import java.time.DateTimeException
-import java.time.OffsetDateTime
+import io.ktor.http.ContentType
+import io.ktor.serialization.Configuration
+import io.ktor.serialization.jackson.JacksonConverter
 
 internal val defaultMapper = jsonMapper {
     configureJackson()
@@ -53,8 +50,6 @@ internal inline fun <reified T> String.toObject(): Either<DeserializationError, 
 
 private fun JsonMapper.Builder.configureJackson() {
     addModule(kotlinModule())
-    addModule(javaTimeModule())
-    disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
     serializationInclusion(JsonInclude.Include.NON_NULL)
@@ -64,28 +59,6 @@ private fun JsonMapper.Builder.configureJackson() {
             indentObjectsWith(DefaultIndenter("  ", "\n"))
         },
     )
-}
-
-private fun javaTimeModule(): JavaTimeModule {
-    val module = JavaTimeModule()
-    module.addDeserializer(OffsetDateTime::class.java, Rfc3339OffsetDateTimeDeserializer)
-    return module
-}
-
-internal object Rfc3339OffsetDateTimeDeserializer : StdDeserializer<OffsetDateTime>(OffsetDateTime::class.java) {
-    @Suppress("SwallowedException")
-    @Throws(IOException::class, JsonProcessingException::class)
-    override fun deserialize(
-        jsonparser: JsonParser,
-        context: DeserializationContext,
-    ): OffsetDateTime {
-        val value = jsonparser.text
-        return try {
-            ITU.parseDateTime(value)
-        } catch (e: DateTimeException) {
-            throw context.weirdStringException(value, OffsetDateTime::class.java, e.message)
-        }
-    }
 }
 
 internal data class DeserializationError(

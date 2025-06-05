@@ -28,17 +28,22 @@ internal fun cardHandler(
         cvcNumberField: CvcNumberField,
         expiryDateField: ExpiryDateField,
         additionalData: List<DataField>,
-    ): TokenizeCardResponse {
-        val cardData = validateInput(cardNumberField, cvcNumberField, expiryDateField).getOrElse { listOfErrors ->
-            return TokenizeCardResponse.Failure(listOfErrors.joinToString(", ") { it.message }, validationErrors = listOfErrors)
-        }
+    ): TokenizeCardResponse =
+        either {
+            val cardData = validateInput(cardNumberField, cvcNumberField, expiryDateField).mapLeft { listOfErrors ->
+                TokenizeCardResponse.Failure(
+                    message = "Card data validation failed",
+                    validationErrors = listOfErrors.toList(),
+                )
+            }.bind()
 
-        return tokenService.tokenize(
-            sessionId,
-            cardData,
-            additionalData.associate { it.additionalDataTypes to it.value() },
-        )
-    }
+            tokenService.tokenize(
+                sessionId,
+                cardData,
+                additionalData.associate { it.additionalDataTypes to it.value() }
+                    .filter { it.value.isNotBlank() },
+            )
+        }.getOrElse { it }
 
     @Suppress("MagicNumber")
     private suspend fun validateInput(

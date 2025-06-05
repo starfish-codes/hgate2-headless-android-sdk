@@ -1,4 +1,3 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.jetbrainsKotlinAndroid) apply false
@@ -11,12 +10,11 @@ plugins {
     alias(libs.plugins.testLogger) apply false
 }
 
-tasks.register("addPreCommitGitHook") {
-    doLast {
-        println("Running Add Pre Commit Git Hook Script on Build")
-        exec {
-            commandLine("cp", ".script/pre-commit", ".git/hooks")
-        }
-        println("✅ Added Pre Commit Git Hook Script.")
-    }
+tasks.register<Exec>("addPreCommitGitHook") {
+    group = "git"
+    description = "Adds a pre-commit git hook to the project."
+
+    doFirst { println("Adding pre-commit git hook...") }
+    commandLine = listOf("cp", ".script/pre-commit", ".git/hooks")
+    doLast { println("✅ Pre-commit git hook added successfully.") }
 }
